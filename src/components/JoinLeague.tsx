@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { collection, query, onSnapshot, doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
-import { db } from '../firebase';
+import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from './AuthGuard';
 import { BankAccount, League } from '../types';
 import { Trophy, CheckCircle2, CreditCard, Wallet, Loader2, ChevronRight, Star, ShieldCheck, ArrowRight } from 'lucide-react';
@@ -73,6 +73,8 @@ export default function JoinLeague() {
       window.alert('리그 참여가 성공적으로 완료되었습니다!');
     } catch (error) {
       console.error('League join error:', error);
+      handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
+      window.alert(`리그 참여 중 오류가 발생했습니다: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setLoading(false);
     }
@@ -92,6 +94,8 @@ export default function JoinLeague() {
       window.alert('리그 참여가 취소되었습니다.');
     } catch (error) {
       console.error('League leave error:', error);
+      handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
+      window.alert(`리그 참여 취소 중 오류가 발생했습니다: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setLoading(false);
     }

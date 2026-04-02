@@ -18,6 +18,7 @@ service cloud.firestore {
     //   - sharpeRatio: number (optional)
     //   - tuhonScore: number (optional)
     //   - league: string (enum: Rookie, Pro, Master)
+    //   - leagueAccountId: string (optional)
     //   - badges: list (optional)
     //   - updatedAt: timestamp (optional)
     //
@@ -116,7 +117,8 @@ service cloud.firestore {
              data.uid == request.auth.uid &&
              data.displayName is string && data.displayName.size() > 0 && data.displayName.size() < 100 &&
              data.totalAssets is number &&
-             (!('league' in data) || data.league in ['Rookie', 'Pro', 'Master']);
+             (!('league' in data) || data.league == null || data.league in ['Rookie', 'Pro', 'Master']) &&
+             (!('leagueAccountId' in data) || data.leagueAccountId == null || (data.leagueAccountId is string && data.leagueAccountId.size() < 100));
     }
 
     function isValidPortfolio(data) {

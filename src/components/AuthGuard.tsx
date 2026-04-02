@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, signInWithGoogle, db } from '../firebase';
+import { auth, signInWithGoogle, db, handleFirestoreError, OperationType } from '../firebase';
 import { LogIn, Loader2 } from 'lucide-react';
 import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
 import { UserProfile } from '../types';
@@ -65,13 +65,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           updatedAt: serverTimestamp()
         };
         setDoc(userRef, initialProfile).catch(err => {
-          console.error("Error creating initial profile:", err);
+          handleFirestoreError(err, OperationType.WRITE, `users/${user.uid}`);
           setLoading(false);
         });
         // loading will be set to false in the next snapshot when docSnap.exists() is true
       }
     }, (error) => {
-      console.error("Profile snapshot error:", error);
+      handleFirestoreError(error, OperationType.GET, `users/${user.uid}`);
       setLoading(false);
     });
 
@@ -104,7 +104,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             </div>
             
             <button
-              onClick={signInWithGoogle}
+              onClick={() => {
+                signInWithGoogle().catch(err => {
+                  console.error("Login Error:", err);
+                  alert(`로그인 중 오류가 발생했습니다: ${err.message}\nFirebase 콘솔에서 승인된 도메인을 확인해 주세요.`);
+                });
+              }}
               className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-950 font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-lg shadow-white/5"
             >
               <LogIn className="w-5 h-5" />
