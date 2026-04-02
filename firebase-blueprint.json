@@ -1,0 +1,112 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile including ranking and performance stats",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "totalAssets": { "type": "number" },
+        "monthlyReturn": { "type": "number" },
+        "monthlyProfit": { "type": "number" },
+        "monthlyReturnsHistory": { 
+          "type": "array", 
+          "items": { 
+            "type": "object",
+            "properties": {
+              "month": { "type": "string" },
+              "return": { "type": "number" }
+            }
+          }
+        },
+        "mdd": { "type": "number" },
+        "sharpeRatio": { "type": "number" },
+        "tuhonScore": { "type": "number" },
+        "league": { "type": "string", "enum": ["Rookie", "Pro", "Master"] },
+        "badges": { "type": "array", "items": { "type": "string" } },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "totalAssets"]
+    },
+    "Portfolio": {
+      "title": "Portfolio Holding",
+      "description": "Individual asset holding in a user's portfolio",
+      "type": "object",
+      "properties": {
+        "symbol": { "type": "string" },
+        "name": { "type": "string" },
+        "weight": { "type": "number" },
+        "value": { "type": "number" },
+        "category": { "type": "string" }
+      },
+      "required": ["symbol", "weight"]
+    },
+    "TradeLog": {
+      "title": "Trade Log",
+      "description": "Record of a buy or sell transaction",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "symbol": { "type": "string" },
+        "type": { "type": "string", "enum": ["BUY", "SELL"] },
+        "price": { "type": "number" },
+        "amount": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "note": { "type": "string" }
+      },
+      "required": ["uid", "symbol", "type", "price", "amount", "timestamp"]
+    },
+    "Post": {
+      "title": "Community Post",
+      "description": "A post in the community feed",
+      "type": "object",
+      "properties": {
+        "authorUid": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorPhoto": { "type": "string" },
+        "content": { "type": "string" },
+        "likes": { "type": "number" },
+        "commentCount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorUid", "authorName", "content", "createdAt"]
+    },
+    "Comment": {
+      "title": "Post Comment",
+      "description": "A comment on a community post",
+      "type": "object",
+      "properties": {
+        "authorUid": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorPhoto": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorUid", "authorName", "content", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile and stats"
+    },
+    "/users/{userId}/portfolio/{holdingId}": {
+      "schema": "Portfolio",
+      "description": "User's current holdings"
+    },
+    "/users/{userId}/trades/{tradeId}": {
+      "schema": "TradeLog",
+      "description": "User's trade history"
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Community posts"
+    },
+    "/posts/{postId}/comments/{commentId}": {
+      "schema": "Comment",
+      "description": "Comments on a post"
+    }
+  }
+}

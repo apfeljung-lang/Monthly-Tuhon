@@ -1,0 +1,35 @@
+@import "tailwindcss";
+@import url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302@1.0/Paperlogy-All.css');
+
+@theme {
+  --font-sans: "Paperlogy", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-orange-50: #FEF2F1;
+  --color-orange-100: #FEE2E1;
+  --color-orange-200: #FECACA;
+  --color-orange-300: #FCA5A5;
+  --color-orange-400: #F87171;
+  --color-orange-500: #EF4444; /* Default red-500, but let's use a lighter version of our target */
+  --color-orange-500: #EC7364;
+  --color-orange-600: #E6503D; /* Target Burnt Orange */
+  --color-orange-700: #C13D2D;
+  --color-orange-800: #991B1B;
+  --color-orange-900: #7F1D1D;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
