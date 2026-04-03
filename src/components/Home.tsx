@@ -6,63 +6,16 @@ import { useAuth } from './AuthGuard';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { UserProfile } from '../types';
-
-const MOCK_USERS: UserProfile[] = [
-  {
-    uid: 'mock-1',
-    displayName: '김민준',
-    photoURL: 'https://picsum.photos/seed/user1/100/100',
-    tuhonScore: 2840,
-    monthlyReturn: 47.3,
-    league: 'Master',
-    totalAssets: 150000000
-  },
-  {
-    uid: 'mock-2',
-    displayName: '이서연',
-    photoURL: 'https://picsum.photos/seed/user2/100/100',
-    tuhonScore: 2420,
-    monthlyReturn: 38.9,
-    league: 'Master',
-    totalAssets: 120000000
-  },
-  {
-    uid: 'mock-3',
-    displayName: '박도현',
-    photoURL: 'https://picsum.photos/seed/user3/100/100',
-    tuhonScore: 2150,
-    monthlyReturn: 32.6,
-    league: 'Pro',
-    totalAssets: 85000000
-  },
-  {
-    uid: 'mock-4',
-    displayName: '최지원',
-    photoURL: 'https://picsum.photos/seed/user4/100/100',
-    tuhonScore: 1980,
-    monthlyReturn: 27.4,
-    league: 'Pro',
-    totalAssets: 62000000
-  },
-  {
-    uid: 'mock-5',
-    displayName: '정수빈',
-    photoURL: 'https://picsum.photos/seed/user5/100/100',
-    tuhonScore: 1750,
-    monthlyReturn: 23.8,
-    league: 'Rookie',
-    totalAssets: 24000000
-  }
-];
+import { MOCK_RANKERS } from '../mockData';
 
 function RealtimeRanking() {
-  const [topUsers, setTopUsers] = useState<UserProfile[]>(MOCK_USERS);
+  const [topUsers, setTopUsers] = useState<UserProfile[]>(MOCK_RANKERS.slice(0, 20));
 
   useEffect(() => {
     const q = query(
       collection(db, 'users'),
       orderBy('tuhonScore', 'desc'),
-      limit(5)
+      limit(20)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -72,6 +25,8 @@ function RealtimeRanking() {
           ...doc.data()
         })) as UserProfile[];
         setTopUsers(users);
+      } else {
+        setTopUsers(MOCK_RANKERS.slice(0, 20));
       }
     });
 
@@ -96,7 +51,7 @@ function RealtimeRanking() {
           </div>
         </div>
 
-        <div className="space-y-4 md:space-y-6">
+        <div className="space-y-4 md:space-y-6 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
           {topUsers.length > 0 ? (
             topUsers.map((user, index) => (
               <div key={user.uid} className="flex items-center justify-between group">

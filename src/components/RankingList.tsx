@@ -3,6 +3,7 @@ import { collection, query, orderBy, onSnapshot, limit, doc, setDoc, deleteDoc, 
 import { db } from '../firebase';
 import { useAuth } from './AuthGuard';
 import { UserProfile, TradeLog, PortfolioHolding } from '../types';
+import { MOCK_RANKERS } from '../mockData';
 import { Trophy, Medal, Star, Filter, Search, ChevronRight, X, Zap, Target, Award, TrendingUp, Briefcase, History, PieChart as PieChartIcon, ArrowLeft, UserPlus, UserCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn, translateLeague } from '../lib/utils';
@@ -24,25 +25,21 @@ const MOCK_DETAIL_TRADES: TradeLog[] = [
   { id: '3', uid: 'mock', symbol: 'NVDA', type: 'BUY', price: 1200000, amount: 2, timestamp: { toDate: () => new Date('2026-03-15') } },
 ];
 
-const MOCK_RANKERS: UserProfile[] = [
-  { uid: '1', displayName: 'Kim Tuhon', photoURL: 'https://picsum.photos/seed/user1/100/100', totalAssets: 50000000, monthlyReturn: 24.5, tuhonScore: 2850, league: 'Master', badges: ['Top 1%', 'Legend'] },
-  { uid: '2', displayName: 'Lee Investor', photoURL: 'https://picsum.photos/seed/user2/100/100', totalAssets: 32000000, monthlyReturn: 18.2, tuhonScore: 2420, league: 'Pro', badges: ['Rising Star'] },
-  { uid: '3', displayName: 'Park Trader', photoURL: 'https://picsum.photos/seed/user3/100/100', totalAssets: 15000000, monthlyReturn: 15.8, tuhonScore: 1980, league: 'Pro', badges: ['Consistent'] },
-  { uid: '4', displayName: 'Choi Growth', photoURL: 'https://picsum.photos/seed/user4/100/100', totalAssets: 8000000, monthlyReturn: 12.4, tuhonScore: 1540, league: 'Rookie', badges: ['Newcomer'] },
-  { uid: '5', displayName: 'Jung Value', photoURL: 'https://picsum.photos/seed/user5/100/100', totalAssets: 12000000, monthlyReturn: -2.5, tuhonScore: 1210, league: 'Rookie', badges: [] },
-];
-
 export default function RankingList() {
-  const [rankers, setRankers] = useState<UserProfile[]>([]);
+  const [rankers, setRankers] = useState<UserProfile[]>(MOCK_RANKERS.slice(0, 20));
   const [activeLeague, setActiveLeague] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'users'), orderBy('tuhonScore', 'desc'), limit(50));
+    const q = query(collection(db, 'users'), orderBy('tuhonScore', 'desc'), limit(20));
     const unsub = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => doc.data() as UserProfile);
-      setRankers(data.length > 0 ? data : MOCK_RANKERS);
+      if (!snapshot.empty) {
+        const data = snapshot.docs.map(doc => doc.data() as UserProfile);
+        setRankers(data);
+      } else {
+        setRankers(MOCK_RANKERS.slice(0, 20));
+      }
     });
     return () => unsub();
   }, []);
