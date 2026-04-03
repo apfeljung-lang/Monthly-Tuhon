@@ -34,19 +34,35 @@ export default function RankingList() {
   useEffect(() => {
     const q = query(collection(db, 'users'), orderBy('tuhonScore', 'desc'), limit(20));
     const unsub = onSnapshot(q, (snapshot) => {
-      if (!snapshot.empty) {
-        const data = snapshot.docs.map(doc => doc.data() as UserProfile);
-        setRankers(data);
-      } else {
-        setRankers(MOCK_RANKERS.slice(0, 20));
-      }
+      const realUsers = snapshot.docs.map(doc => ({
+        uid: doc.id,
+        ...doc.data()
+      })) as UserProfile[];
+      
+      // 실시간 데이터와 Mock 데이터를 병합하여 항상 20명을 유지
+      const combined = [...realUsers];
+      const realUids = new Set(realUsers.map(u => u.uid));
+      
+      MOCK_RANKERS.forEach(mockUser => {
+        if (!realUids.has(mockUser.uid)) {
+          combined.push(mockUser);
+        }
+      });
+
+      // 점수 순으로 정렬 후 상위 20명 추출
+      const sorted = combined
+        .sort((a, b) => (b.tuhonScore || 0) - (a.tuhonScore || 0))
+        .slice(0, 20);
+
+      setRankers(sorted);
+    }, (error) => {
+      console.error("RankingList Snapshot Error:", error);
+      setRankers(MOCK_RANKERS.slice(0, 20));
     });
     return () => unsub();
   }, []);
 
-  const displayRankers = rankers.length > 0 ? rankers : MOCK_RANKERS;
-
-  const filteredRankers = displayRankers.filter(r => {
+  const filteredRankers = rankers.filter(r => {
     const matchesLeague = activeLeague === 'All' || r.league === activeLeague;
     const matchesSearch = r.displayName.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesLeague && matchesSearch;

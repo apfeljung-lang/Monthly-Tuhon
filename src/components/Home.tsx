@@ -9,25 +9,41 @@ import { UserProfile } from '../types';
 import { MOCK_RANKERS } from '../mockData';
 
 function RealtimeRanking() {
-  const [topUsers, setTopUsers] = useState<UserProfile[]>(MOCK_RANKERS.slice(0, 20));
+  const [topUsers, setTopUsers] = useState<UserProfile[]>(MOCK_RANKERS.slice(0, 5));
 
   useEffect(() => {
     const q = query(
       collection(db, 'users'),
       orderBy('tuhonScore', 'desc'),
-      limit(20)
+      limit(5)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      if (!snapshot.empty) {
-        const users = snapshot.docs.map(doc => ({
-          uid: doc.id,
-          ...doc.data()
-        })) as UserProfile[];
-        setTopUsers(users);
-      } else {
-        setTopUsers(MOCK_RANKERS.slice(0, 20));
-      }
+      const realUsers = snapshot.docs.map(doc => ({
+        uid: doc.id,
+        ...doc.data()
+      })) as UserProfile[];
+      
+      // 실시간 데이터와 Mock 데이터를 병합하여 항상 5명을 유지
+      const combined = [...realUsers];
+      const realUids = new Set(realUsers.map(u => u.uid));
+      
+      MOCK_RANKERS.forEach(mockUser => {
+        if (!realUids.has(mockUser.uid)) {
+          combined.push(mockUser);
+        }
+      });
+
+      // 점수 순으로 정렬 후 상위 5명 추출
+      const sorted = combined
+        .sort((a, b) => (b.tuhonScore || 0) - (a.tuhonScore || 0))
+        .slice(0, 5);
+        
+      setTopUsers(sorted);
+    }, (error) => {
+      console.error("Home Ranking Snapshot Error:", error);
+      // 에러 발생 시 Mock 데이터로 유지
+      setTopUsers(MOCK_RANKERS.slice(0, 5));
     });
 
     return () => unsubscribe();
@@ -51,7 +67,7 @@ function RealtimeRanking() {
           </div>
         </div>
 
-        <div className="space-y-4 md:space-y-6 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="space-y-4 md:space-y-6">
           {topUsers.length > 0 ? (
             topUsers.map((user, index) => (
               <div key={user.uid} className="flex items-center justify-between group">
