@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           role: 'user',
           updatedAt: serverTimestamp()
         };
-        setDoc(userRef, initialProfile).catch(err => {
+        setDoc(userRef, initialProfile, { merge: true }).catch(err => {
           setLoading(false);
           handleFirestoreError(err, OperationType.WRITE, `users/${user.uid}`);
         });
