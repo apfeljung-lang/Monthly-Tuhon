@@ -27,6 +27,7 @@
         "league": { "type": "string", "enum": ["Rookie", "Pro", "Master"] },
         "leagueAccountId": { "type": "string" },
         "badges": { "type": "array", "items": { "type": "string" } },
+        "role": { "type": "string" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["uid", "displayName", "totalAssets"]

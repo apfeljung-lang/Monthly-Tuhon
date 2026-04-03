@@ -96,6 +96,7 @@ export default function JoinLeague() {
         displayName: user.displayName || profile?.displayName || '익명',
         league: null,
         leagueAccountId: null,
+        totalAssets: profile?.totalAssets || 10000000,
         updatedAt: serverTimestamp()
       }, { merge: true });
       setSelectedAccountId(null);

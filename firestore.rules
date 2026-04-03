@@ -94,9 +94,9 @@ service cloud.firestore {
 
     function isAdmin() {
       return isAuthenticated() && 
-        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == 'admin') ||
-         (request.auth.token.email == "apfeljung@gmail.com"));
+        (request.auth.token.email == "apfeljung@gmail.com" ||
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', '') == 'admin'));
     }
 
     function hasRequiredFields(fields) {
@@ -115,11 +115,10 @@ service cloud.firestore {
     
     function isValidUser(data, userId) {
       return data.uid == userId &&
-             data.displayName is string && data.displayName.size() > 0 && data.displayName.size() < 100 &&
+             data.displayName is string &&
              data.totalAssets is number &&
-             (!('league' in data) || data.league == null || data.league in ['Rookie', 'Pro', 'Master']) &&
-             (!('leagueAccountId' in data) || data.leagueAccountId == null || (data.leagueAccountId is string && data.leagueAccountId.size() < 100)) &&
-             (!('updatedAt' in data) || data.updatedAt == null || data.updatedAt is timestamp);
+             (!('league' in data) || data.league == null || data.league is string) &&
+             (!('leagueAccountId' in data) || data.leagueAccountId == null || data.leagueAccountId is string);
     }
 
     function isValidPortfolio(data) {

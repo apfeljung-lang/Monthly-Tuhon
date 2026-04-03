@@ -64,6 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           followers: 0,
           league: 'Rookie',
           badges: ['Newcomer'],
+          role: 'user',
           updatedAt: serverTimestamp()
         };
         setDoc(userRef, initialProfile).catch(err => {

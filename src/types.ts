@@ -16,6 +16,7 @@ export interface UserProfile {
   league?: League;
   leagueAccountId?: string;
   badges?: string[];
+  role?: string;
   updatedAt?: any;
 }
 
