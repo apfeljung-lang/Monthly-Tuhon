@@ -4,8 +4,10 @@ import { db } from '../firebase';
 import { useAuth } from './AuthGuard';
 import { UserProfile, TradeLog, PortfolioHolding, BankAccount } from '../types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, History, Calendar, ArrowUpRight, ArrowDownRight, Briefcase, FileText, PieChart as PieChartIcon, Target, CreditCard, Wallet, ChevronDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, History, Calendar, ArrowUpRight, ArrowDownRight, Briefcase, FileText, PieChart as PieChartIcon, Target, CreditCard, Wallet, ChevronDown, Download, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const MOCK_TRADES: TradeLog[] = [
   { id: '1', uid: 'mock', symbol: 'TSLA', type: 'BUY', price: 245000, amount: 10, timestamp: { toDate: () => new Date('2026-03-25') } },
@@ -131,7 +133,45 @@ export default function MonthlyReport() {
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadPDF = async () => {
+    if (!reportRef.current) return;
+    
+    setIsDownloading(true);
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#020617', // slate-950
+        logging: false,
+        onclone: (clonedDoc) => {
+          // Hide elements that shouldn't be in the PDF
+          const downloadBtn = clonedDoc.querySelector('.pdf-download-btn');
+          if (downloadBtn) (downloadBtn as HTMLElement).style.display = 'none';
+          
+          const dropdown = clonedDoc.querySelector('.account-dropdown');
+          if (dropdown) (dropdown as HTMLElement).style.display = 'none';
+        }
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`Monthly_Tuhon_Report_${new Date().toISOString().slice(0, 7)}.pdf`);
+    } catch (error) {
+      console.error('PDF Generation Error:', error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   useEffect(() => {
     if (profile?.leagueAccountId && !selectedAccountId) {
@@ -192,7 +232,7 @@ export default function MonthlyReport() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" ref={reportRef}>
       <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-2">
           <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic">
@@ -202,7 +242,7 @@ export default function MonthlyReport() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {/* Custom Dropdown (Combo Box) */}
-          <div className="relative z-50" ref={dropdownRef}>
+          <div className="relative z-50 account-dropdown" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center gap-4 bg-slate-900 border border-slate-800 px-6 py-2.5 rounded-xl hover:border-orange-500/50 transition-all group"
@@ -423,8 +463,22 @@ export default function MonthlyReport() {
               MDD가 지난달 대비 2.4% 감소하여 리스크 관리가 개선되었습니다.
             </p>
           </div>
-          <button className="w-full max-w-xs py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl transition-all uppercase tracking-widest shadow-lg shadow-orange-600/20">
-            PDF 보고서 다운로드
+          <button 
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+            className="pdf-download-btn w-full max-w-xs py-4 bg-orange-600 hover:bg-orange-500 disabled:bg-orange-800 text-white font-black rounded-2xl transition-all uppercase tracking-widest shadow-lg shadow-orange-600/20 flex items-center justify-center gap-2"
+          >
+            {isDownloading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                생성 중...
+              </>
+            ) : (
+              <>
+                <Download className="w-5 h-5" />
+                PDF 보고서 다운로드
+              </>
+            )}
           </button>
         </div>
       </div>
