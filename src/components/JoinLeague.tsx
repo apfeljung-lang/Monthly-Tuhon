@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from './AuthGuard';
 import { BankAccount, League } from '../types';
-import { Trophy, CheckCircle2, CreditCard, Wallet, Loader2, ChevronRight, Star, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Trophy, CheckCircle2, CreditCard, Wallet, Loader2, ChevronRight, Star, ShieldCheck, ArrowRight, ShieldAlert, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 
@@ -28,6 +28,8 @@ export default function JoinLeague() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     if (profile?.leagueAccountId && !selectedAccountId) {
       setSelectedAccountId(profile.leagueAccountId);
@@ -50,6 +52,7 @@ export default function JoinLeague() {
   const handleJoin = async () => {
     if (!user || !selectedAccountId) return;
     setLoading(true);
+    setError(null);
 
     try {
       if (!selectedAccount) throw new Error('계좌를 찾을 수 없습니다.');
@@ -70,11 +73,11 @@ export default function JoinLeague() {
       }, { merge: true });
 
       setIsSuccess(true);
-      window.alert('리그 참여가 성공적으로 완료되었습니다!');
-    } catch (error) {
-      console.error('League join error:', error);
-      handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
-      window.alert(`리그 참여 중 오류가 발생했습니다: ${error instanceof Error ? error.message : String(error)}`);
+    } catch (err: any) {
+      console.error('League join error:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg);
+      handleFirestoreError(err, OperationType.WRITE, `users/${user.uid}`);
     } finally {
       setLoading(false);
     }
@@ -83,6 +86,7 @@ export default function JoinLeague() {
   const handleLeave = async () => {
     if (!user) return;
     setLoading(true);
+    setError(null);
     try {
       const userRef = doc(db, 'users', user.uid);
       await setDoc(userRef, {
@@ -91,11 +95,11 @@ export default function JoinLeague() {
         updatedAt: serverTimestamp()
       }, { merge: true });
       setSelectedAccountId(null);
-      window.alert('리그 참여가 취소되었습니다.');
-    } catch (error) {
-      console.error('League leave error:', error);
-      handleFirestoreError(error, OperationType.WRITE, `users/${user.uid}`);
-      window.alert(`리그 참여 취소 중 오류가 발생했습니다: ${error instanceof Error ? error.message : String(error)}`);
+    } catch (err: any) {
+      console.error('League leave error:', err);
+      const msg = err instanceof Error ? err.message : String(err);
+      setError(msg);
+      handleFirestoreError(err, OperationType.WRITE, `users/${user.uid}`);
     } finally {
       setLoading(false);
     }
@@ -104,6 +108,24 @@ export default function JoinLeague() {
   return (
     <>
       <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-[10000] w-full max-w-md px-4"
+          >
+            <div className="bg-rose-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <ShieldAlert className="w-5 h-5" />
+                <p className="text-sm font-bold">{error}</p>
+              </div>
+              <button onClick={() => setError(null)} className="p-1 hover:bg-white/20 rounded-lg transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
         {isSuccess && (
           <motion.div
             initial={{ opacity: 0 }}

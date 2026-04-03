@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, signInWithGoogle, db, handleFirestoreError, OperationType } from '../firebase';
-import { LogIn, Loader2 } from 'lucide-react';
+import { LogIn, Loader2, ShieldAlert, X } from 'lucide-react';
 import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
 import { UserProfile } from '../types';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface AuthContextType {
   user: User | null;
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -65,14 +67,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           updatedAt: serverTimestamp()
         };
         setDoc(userRef, initialProfile).catch(err => {
-          handleFirestoreError(err, OperationType.WRITE, `users/${user.uid}`);
           setLoading(false);
+          handleFirestoreError(err, OperationType.WRITE, `users/${user.uid}`);
         });
         // loading will be set to false in the next snapshot when docSnap.exists() is true
       }
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, `users/${user.uid}`);
       setLoading(false);
+      handleFirestoreError(error, OperationType.GET, `users/${user.uid}`);
     });
 
     return () => unsubscribe();
@@ -105,9 +107,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             
             <button
               onClick={() => {
+                setError(null);
                 signInWithGoogle().catch(err => {
                   console.error("Login Error:", err);
-                  alert(`로그인 중 오류가 발생했습니다: ${err.message}\nFirebase 콘솔에서 승인된 도메인을 확인해 주세요.`);
+                  setError(`로그인 중 오류가 발생했습니다: ${err.message}\nFirebase 콘솔에서 승인된 도메인을 확인해 주세요.`);
                 });
               }}
               className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-950 font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-lg shadow-white/5"
@@ -127,5 +130,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
   }
 
-  return <AuthContext.Provider value={{ user, profile, loading }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, profile, loading }}>
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-[10000] w-full max-w-md px-4"
+          >
+            <div className="bg-rose-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <ShieldAlert className="w-5 h-5" />
+                <p className="text-sm font-bold">{error}</p>
+              </div>
+              <button onClick={() => setError(null)} className="p-1 hover:bg-white/20 rounded-lg transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {children}
+    </AuthContext.Provider>
+  );
 };

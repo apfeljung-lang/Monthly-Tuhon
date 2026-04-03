@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Home as HomeIcon, LayoutGrid, Trophy, PieChart, History, LogOut, Menu, X, User as UserIcon, TrendingUp, ShieldAlert, MessageSquare, Users } from 'lucide-react';
+import { Home as HomeIcon, LayoutGrid, Trophy, PieChart, History, LogOut, Menu, X, User as UserIcon, TrendingUp, ShieldAlert, MessageSquare, Users, RefreshCcw } from 'lucide-react';
 import { AuthProvider, useAuth } from './components/AuthGuard';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { logout } from './firebase';
@@ -98,6 +98,13 @@ const Sidebar = () => {
                 <p className="text-xs text-slate-500 truncate">{user?.email}</p>
               </div>
             </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full flex items-center justify-center gap-3 bg-slate-900 hover:bg-slate-800 text-slate-500 hover:text-orange-500 font-bold py-3 rounded-2xl transition-all mb-2"
+            >
+              <RefreshCcw className="w-5 h-5" />
+              새로고침
+            </button>
             <button
               onClick={logout}
               className="w-full flex items-center justify-center gap-3 bg-slate-900 hover:bg-red-950/30 text-slate-500 hover:text-red-500 font-bold py-3 rounded-2xl transition-all"
