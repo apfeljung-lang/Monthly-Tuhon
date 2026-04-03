@@ -116,9 +116,7 @@ service cloud.firestore {
     function isValidUser(data, userId) {
       return data.uid == userId &&
              data.displayName is string &&
-             data.totalAssets is number &&
-             (!('league' in data) || data.league == null || data.league is string) &&
-             (!('leagueAccountId' in data) || data.leagueAccountId == null || data.leagueAccountId is string);
+             data.totalAssets is number;
     }
 
     function isValidPortfolio(data) {
@@ -165,8 +163,8 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow create: if isOwner(userId) && isValidUser(request.resource.data, userId);
-      allow update: if (isOwner(userId) && isValidUser(request.resource.data, userId)) || 
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || 
                       isValidCounterUpdate(userId, 'followers') ||
                       isAdmin();
       allow delete: if isAdmin();
