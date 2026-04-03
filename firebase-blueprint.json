@@ -25,6 +25,7 @@
         "sharpeRatio": { "type": "number" },
         "tuhonScore": { "type": "number" },
         "league": { "type": "string", "enum": ["Rookie", "Pro", "Master"] },
+        "leagueAccountId": { "type": "string" },
         "badges": { "type": "array", "items": { "type": "string" } },
         "updatedAt": { "type": "string", "format": "date-time" }
       },

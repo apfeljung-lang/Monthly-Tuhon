@@ -66,6 +66,8 @@ export default function JoinLeague() {
 
       const userRef = doc(db, 'users', user.uid);
       await setDoc(userRef, {
+        uid: user.uid,
+        displayName: user.displayName || profile?.displayName || '익명',
         league,
         leagueAccountId: selectedAccountId,
         totalAssets: selectedAccount.balance, // Update total assets to match the league account
@@ -90,6 +92,8 @@ export default function JoinLeague() {
     try {
       const userRef = doc(db, 'users', user.uid);
       await setDoc(userRef, {
+        uid: user.uid,
+        displayName: user.displayName || profile?.displayName || '익명',
         league: null,
         leagueAccountId: null,
         updatedAt: serverTimestamp()
