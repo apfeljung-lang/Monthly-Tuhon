@@ -3,7 +3,7 @@ import { UserProfile } from './types';
 export const MOCK_RANKERS: UserProfile[] = [
   {
     uid: 'mock-1',
-    displayName: '김민준',
+    displayName: '차트술사',
     photoURL: 'https://picsum.photos/seed/user1/100/100',
     tuhonScore: 2840,
     monthlyReturn: 47.3,
@@ -14,7 +14,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-2',
-    displayName: '이서연',
+    displayName: '불개미',
     photoURL: 'https://picsum.photos/seed/user2/100/100',
     tuhonScore: 2720,
     monthlyReturn: 42.1,
@@ -25,7 +25,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-3',
-    displayName: '박도현',
+    displayName: '단타의신',
     photoURL: 'https://picsum.photos/seed/user3/100/100',
     tuhonScore: 2650,
     monthlyReturn: 38.6,
@@ -36,7 +36,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-4',
-    displayName: '최지원',
+    displayName: '황소의꿈',
     photoURL: 'https://picsum.photos/seed/user4/100/100',
     tuhonScore: 2580,
     monthlyReturn: 35.4,
@@ -47,7 +47,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-5',
-    displayName: '정수빈',
+    displayName: '곰사냥꾼',
     photoURL: 'https://picsum.photos/seed/user5/100/100',
     tuhonScore: 2450,
     monthlyReturn: 32.8,
@@ -58,7 +58,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-6',
-    displayName: '강하준',
+    displayName: '나스닥전사',
     photoURL: 'https://picsum.photos/seed/user6/100/100',
     tuhonScore: 2380,
     monthlyReturn: 29.2,
@@ -69,7 +69,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-7',
-    displayName: '윤지민',
+    displayName: '코인왕',
     photoURL: 'https://picsum.photos/seed/user7/100/100',
     tuhonScore: 2250,
     monthlyReturn: 26.5,
@@ -80,7 +80,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-8',
-    displayName: '임재현',
+    displayName: '복리의마법',
     photoURL: 'https://picsum.photos/seed/user8/100/100',
     tuhonScore: 2180,
     monthlyReturn: 24.1,
@@ -91,7 +91,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-9',
-    displayName: '한예슬',
+    displayName: '급등주포착',
     photoURL: 'https://picsum.photos/seed/user9/100/100',
     tuhonScore: 2050,
     monthlyReturn: 21.8,
@@ -102,7 +102,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-10',
-    displayName: '오건우',
+    displayName: '가치투자자',
     photoURL: 'https://picsum.photos/seed/user10/100/100',
     tuhonScore: 1980,
     monthlyReturn: 19.4,
@@ -113,7 +113,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-11',
-    displayName: '서아름',
+    displayName: '배당금사냥',
     photoURL: 'https://picsum.photos/seed/user11/100/100',
     tuhonScore: 1850,
     monthlyReturn: 17.2,
@@ -124,7 +124,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-12',
-    displayName: '권태준',
+    displayName: '선물황제',
     photoURL: 'https://picsum.photos/seed/user12/100/100',
     tuhonScore: 1780,
     monthlyReturn: 15.1,
@@ -135,7 +135,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-13',
-    displayName: '황보라',
+    displayName: '옵션마스터',
     photoURL: 'https://picsum.photos/seed/user13/100/100',
     tuhonScore: 1650,
     monthlyReturn: 12.8,
@@ -146,7 +146,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-14',
-    displayName: '배진우',
+    displayName: '퀀트매니저',
     photoURL: 'https://picsum.photos/seed/user14/100/100',
     tuhonScore: 1580,
     monthlyReturn: 10.4,
@@ -157,7 +157,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-15',
-    displayName: '송지효',
+    displayName: '테마주사냥',
     photoURL: 'https://picsum.photos/seed/user15/100/100',
     tuhonScore: 1450,
     monthlyReturn: 8.2,
@@ -168,7 +168,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-16',
-    displayName: '유재석',
+    displayName: '우량주홀더',
     photoURL: 'https://picsum.photos/seed/user16/100/100',
     tuhonScore: 1380,
     monthlyReturn: 6.1,
@@ -179,7 +179,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-17',
-    displayName: '강호동',
+    displayName: '개미의반란',
     photoURL: 'https://picsum.photos/seed/user17/100/100',
     tuhonScore: 1250,
     monthlyReturn: 4.5,
@@ -190,7 +190,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-18',
-    displayName: '신동엽',
+    displayName: '수익률폭발',
     photoURL: 'https://picsum.photos/seed/user18/100/100',
     tuhonScore: 1180,
     monthlyReturn: 2.1,
@@ -201,7 +201,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-19',
-    displayName: '김종국',
+    displayName: '전업트레이더',
     photoURL: 'https://picsum.photos/seed/user19/100/100',
     tuhonScore: 1050,
     monthlyReturn: 0.8,
@@ -212,7 +212,7 @@ export const MOCK_RANKERS: UserProfile[] = [
   },
   {
     uid: 'mock-20',
-    displayName: '하하',
+    displayName: '투혼의별',
     photoURL: 'https://picsum.photos/seed/user20/100/100',
     tuhonScore: 980,
     monthlyReturn: -1.2,

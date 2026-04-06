@@ -124,9 +124,9 @@ const FollowingUserCard = ({ user, onClick }: any) => (
 );
 
 const MOCK_TOP_RANKERS: UserProfile[] = [
-  { uid: '1', displayName: '김투혼', photoURL: 'https://picsum.photos/seed/user1/100/100', totalAssets: 50000000, monthlyReturn: 24.5, tuhonScore: 2850, league: 'Master' },
-  { uid: '2', displayName: '이투자', photoURL: 'https://picsum.photos/seed/user2/100/100', totalAssets: 32000000, monthlyReturn: 18.2, tuhonScore: 2420, league: 'Pro' },
-  { uid: '3', displayName: '박트레이더', photoURL: 'https://picsum.photos/seed/user3/100/100', totalAssets: 15000000, monthlyReturn: 15.8, tuhonScore: 1980, league: 'Pro' },
+  { uid: '1', displayName: '차트술사', photoURL: 'https://picsum.photos/seed/user1/100/100', totalAssets: 50000000, monthlyReturn: 24.5, tuhonScore: 2850, league: 'Master' },
+  { uid: '2', displayName: '불개미', photoURL: 'https://picsum.photos/seed/user2/100/100', totalAssets: 32000000, monthlyReturn: 18.2, tuhonScore: 2420, league: 'Pro' },
+  { uid: '3', displayName: '단타의신', photoURL: 'https://picsum.photos/seed/user3/100/100', totalAssets: 15000000, monthlyReturn: 15.8, tuhonScore: 1980, league: 'Pro' },
 ];
 
 const MOCK_ACCOUNTS_DATA: (BankAccount & { monthlyReturn: number; totalReturn: number; tuhonScore: number; history: { name: string; value: number }[] })[] = [
@@ -345,7 +345,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between px-2">
           <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em] flex items-center gap-2">
             <UserPlus className="w-4 h-4 text-orange-500" />
-            내가 팔로우 한 사용자
+            내가 팔로우 한 필명
           </h3>
           <Link to="/ranking" className="text-[10px] font-black text-orange-500 uppercase tracking-widest hover:underline">
             더 찾아보기
@@ -368,7 +368,7 @@ export default function Dashboard() {
               <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center group-hover:bg-orange-600 transition-colors">
                 <Users className="w-5 h-5 text-slate-500 group-hover:text-white" />
               </div>
-              <p className="text-xs font-bold text-slate-500 group-hover:text-slate-300">팔로우 중인 사용자가 없습니다</p>
+              <p className="text-xs font-bold text-slate-500 group-hover:text-slate-300">팔로우 중인 필명이 없습니다</p>
             </Link>
           )}
         </div>

@@ -23,12 +23,19 @@ const MOCK_ACCOUNTS: BankAccount[] = [
 export default function JoinLeague() {
   const { user, profile } = useAuth();
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+  const [nickname, setNickname] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (profile?.displayName || user?.displayName) {
+      setNickname(profile?.displayName || user?.displayName || '');
+    }
+  }, [profile, user]);
 
   useEffect(() => {
     if (profile?.leagueAccountId && !selectedAccountId) {
@@ -56,6 +63,7 @@ export default function JoinLeague() {
 
     try {
       if (!selectedAccount) throw new Error('계좌를 찾을 수 없습니다.');
+      if (!nickname.trim()) throw new Error('필명을 입력해 주세요.');
 
       // Determine league based on balance
       const leagueObj = [...LEAGUES].reverse().find(l => selectedAccount.balance >= l.minAssets);
@@ -67,7 +75,7 @@ export default function JoinLeague() {
       const userRef = doc(db, 'users', user.uid);
       await setDoc(userRef, {
         uid: user.uid,
-        displayName: user.displayName || profile?.displayName || '익명',
+        displayName: nickname.trim(),
         league,
         leagueAccountId: selectedAccountId,
         totalAssets: selectedAccount.balance, // Update total assets to match the league account
@@ -256,15 +264,40 @@ export default function JoinLeague() {
         <section className="bg-slate-900 border border-slate-800 rounded-[3rem]">
           <div className="px-10 py-8 border-b border-slate-800 flex items-center justify-between">
             <h3 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
-              <CreditCard className="w-6 h-6 text-orange-500" />
-              참여계좌 선택
+              <Trophy className="w-6 h-6 text-orange-500" />
+              리그 참여 정보 설정
             </h3>
-            <span className="text-[10px] font-black bg-slate-800 text-slate-500 px-3 py-1.5 rounded-full uppercase tracking-widest">
-              보유 계좌 {MOCK_ACCOUNTS.length}개
-            </span>
           </div>
           
-          <div className="p-10 space-y-8">
+          <div className="p-10 space-y-10">
+            {/* Nickname Input */}
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-4">
+                필명 (닉네임) 설정
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-8 flex items-center pointer-events-none">
+                  <Star className="w-5 h-5 text-orange-500" />
+                </div>
+                <input
+                  type="text"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  placeholder="리그에서 사용할 필명을 입력하세요"
+                  className="w-full bg-slate-800/80 border-2 border-slate-700 text-white font-bold py-6 pl-16 pr-10 rounded-[2.5rem] focus:border-orange-500 focus:ring-8 focus:ring-orange-500/5 outline-none transition-all placeholder:text-slate-600 shadow-xl"
+                  maxLength={12}
+                />
+                <div className="absolute inset-y-0 right-8 flex items-center">
+                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
+                    {nickname.length}/12
+                  </span>
+                </div>
+              </div>
+              <p className="text-[10px] text-slate-600 font-medium ml-4">
+                * 필명은 랭킹 보드에 공개되며, 최대 12자까지 입력 가능합니다.
+              </p>
+            </div>
+
             <div className="space-y-4">
               <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-4">
                 참여할 계좌 선택

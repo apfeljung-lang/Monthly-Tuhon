@@ -9,9 +9,9 @@ import { motion, AnimatePresence } from 'motion/react';
 const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
 
 const MOCK_POSTS: Post[] = [
-  { id: '1', authorUid: '1', authorName: '김투혼', authorPhoto: 'https://picsum.photos/seed/user1/100/100', content: "비트코인이 전고점을 돌파하려는 모습이네요. 다들 어떻게 대응하시나요? 저는 분할 매도로 대응 중입니다.", likes: 24, commentCount: 5, createdAt: { toDate: () => new Date('2026-03-29T10:00:00') } },
-  { id: '2', authorUid: '2', authorName: '이투자', authorPhoto: 'https://picsum.photos/seed/user2/100/100', content: "엔비디아 실적 발표가 코앞입니다. AI 섹터의 대장주인 만큼 이번에도 어닝 서프라이즈를 기대해 봅니다.", likes: 18, commentCount: 3, createdAt: { toDate: () => new Date('2026-03-29T09:30:00') } },
-  { id: '3', authorUid: '3', authorName: '박트레이더', authorPhoto: 'https://picsum.photos/seed/user3/100/100', content: "오늘의 매매 복기: 조급함에 추격 매수한 것이 패착이었습니다. 원칙을 지키는 게 가장 어렵네요.", likes: 12, commentCount: 2, createdAt: { toDate: () => new Date('2026-03-29T08:15:00') } },
+  { id: '1', authorUid: '1', authorName: '차트술사', authorPhoto: 'https://picsum.photos/seed/user1/100/100', content: "비트코인이 전고점을 돌파하려는 모습이네요. 다들 어떻게 대응하시나요? 저는 분할 매도로 대응 중입니다.", likes: 24, commentCount: 5, createdAt: { toDate: () => new Date('2026-03-29T10:00:00') } },
+  { id: '2', authorUid: '2', authorName: '불개미', authorPhoto: 'https://picsum.photos/seed/user2/100/100', content: "엔비디아 실적 발표가 코앞입니다. AI 섹터의 대장주인 만큼 이번에도 어닝 서프라이즈를 기대해 봅니다.", likes: 18, commentCount: 3, createdAt: { toDate: () => new Date('2026-03-29T09:30:00') } },
+  { id: '3', authorUid: '3', authorName: '단타의신', authorPhoto: 'https://picsum.photos/seed/user3/100/100', content: "오늘의 매매 복기: 조급함에 추격 매수한 것이 패착이었습니다. 원칙을 지키는 게 가장 어렵네요.", likes: 12, commentCount: 2, createdAt: { toDate: () => new Date('2026-03-29T08:15:00') } },
 ];
 
 const CommentSection: React.FC<{ postId: string, onCommentAdded: () => void }> = ({ postId, onCommentAdded }) => {

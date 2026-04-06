@@ -109,7 +109,7 @@ export default function RankingList() {
       <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
         <div className="grid grid-cols-12 px-4 md:px-8 py-4 bg-slate-800/50 border-b border-slate-800 text-[10px] font-black text-slate-500 uppercase tracking-widest">
           <div className="col-span-2 md:col-span-1">순위</div>
-          <div className="col-span-6 md:col-span-4">사용자</div>
+          <div className="col-span-6 md:col-span-4">필명</div>
           <div className="hidden md:block md:col-span-1 text-right">리그</div>
           <div className="col-span-4 md:col-span-2 text-right">수익률</div>
           <div className="hidden md:block md:col-span-2 text-right">팔로워</div>
@@ -174,10 +174,7 @@ export default function RankingList() {
                 <span className="text-sm font-black text-slate-300">{(ranker.followers || 0).toLocaleString()}</span>
               </div>
               <div className="hidden md:block md:col-span-2 text-right flex items-center justify-end gap-4">
-                <div className="text-right">
-                  <p className="text-sm font-black text-white">{ranker.tuhonScore || 0}</p>
-                  <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">점수</p>
-                </div>
+                <span className="text-sm font-black text-white">{ranker.tuhonScore || 0}</span>
                 <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-orange-500 transition-colors" />
               </div>
             </motion.div>
