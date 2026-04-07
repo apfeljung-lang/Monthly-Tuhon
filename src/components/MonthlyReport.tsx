@@ -99,6 +99,71 @@ const MOCK_ACCOUNTS_DATA: (BankAccount & {
 
 const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
 
+const Modal = ({ isOpen, onClose, children }: { isOpen: boolean; onClose: () => void; children: React.ReactNode }) => {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      const handleEsc = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+      window.addEventListener('keydown', handleEsc);
+      return () => {
+        window.removeEventListener('keydown', handleEsc);
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [isOpen, onClose]);
+
+  if (!mounted) return null;
+
+  const target = document.getElementById('modal-root') || document.body;
+
+  return createPortal(
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 flex items-center justify-center p-0 sm:p-4 bg-black/95 backdrop-blur-3xl"
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            right: 0, 
+            bottom: 0, 
+            width: '100vw', 
+            height: '100vh', 
+            zIndex: 9999999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="bg-slate-900 w-full h-full sm:h-auto sm:max-w-5xl sm:max-h-[90vh] sm:rounded-[2.5rem] border border-slate-800 shadow-[0_0_100px_-12px_rgba(234,88,12,0.6)] overflow-hidden flex flex-col relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {children}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    target
+  );
+};
+
 const StatCard = ({ title, value, subValue, icon: Icon, trend }: any) => (
   <motion.div 
     initial={{ opacity: 0, y: 20 }}
@@ -205,17 +270,6 @@ export default function MonthlyReport() {
       setSelectedAccountId(profile.leagueAccountId);
     }
   }, [profile, selectedAccountId]);
-
-  useEffect(() => {
-    if (showPreview) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [showPreview]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -722,97 +776,74 @@ export default function MonthlyReport() {
         </div>
       </div>
 
-      {/* PDF Preview Modal - Using explicit inline styles to guarantee positioning */}
-      {typeof document !== 'undefined' && createPortal(
-        <AnimatePresence>
-          {showPreview && previewImage && (
-            <motion.div
-              key="pdf-preview-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                backdropFilter: 'blur(20px)',
-                zIndex: 999999,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '20px'
-              }}
-              onClick={() => setShowPreview(false)}
+      {/* PDF Preview Modal */}
+      <Modal isOpen={showPreview} onClose={() => setShowPreview(false)}>
+        {/* Header */}
+        <div className="p-6 md:p-8 border-b border-slate-800 flex items-center justify-between bg-slate-900/90 backdrop-blur-xl sticky top-0 z-50">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-orange-600 rounded-2xl shadow-lg shadow-orange-600/30">
+              <FileText className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-black text-white uppercase tracking-tight">보고서 미리보기</h3>
+              <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">2026년 3월 월간 투혼 보고서</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isDownloading}
+              className="hidden sm:flex px-8 py-3 bg-orange-600 hover:bg-orange-500 text-white text-sm font-black rounded-2xl transition-all items-center gap-2 shadow-lg shadow-orange-600/30"
             >
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0, y: 30 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.95, opacity: 0, y: 30 }}
-                transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                className="bg-slate-900 border border-slate-800 rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] shadow-[0_0_100px_-12px_rgba(234,88,12,0.5)] overflow-hidden flex flex-col relative"
-                style={{ zIndex: 1000000 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Header */}
-                <div className="p-6 md:p-8 border-b border-slate-800 flex items-center justify-between bg-slate-900/80 backdrop-blur-md sticky top-0 z-10">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-orange-600 rounded-2xl shadow-lg shadow-orange-600/20">
-                      <FileText className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black text-white uppercase tracking-tight">보고서 미리보기</h3>
-                      <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">2026년 3월 월간 투혼 보고서</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={handleDownloadPDF}
-                      disabled={isDownloading}
-                      className="px-8 py-3 bg-orange-600 hover:bg-orange-500 text-white text-sm font-black rounded-2xl transition-all flex items-center gap-2 shadow-lg shadow-orange-600/20"
-                    >
-                      {isDownloading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-                      다운로드
-                    </button>
-                    <button
-                      onClick={() => setShowPreview(false)}
-                      className="p-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-2xl transition-all"
-                    >
-                      <X className="w-6 h-6" />
-                    </button>
-                  </div>
-                </div>
-                
-                {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 md:p-12 bg-slate-950/30 custom-scrollbar">
-                  <div className="max-w-3xl mx-auto shadow-2xl shadow-black/80 border border-slate-800 rounded-2xl overflow-hidden bg-[#020617]">
-                    <img 
-                      src={previewImage} 
-                      alt="PDF Preview" 
-                      className="w-full h-auto block"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                </div>
+              {isDownloading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+              다운로드
+            </button>
+            <button
+              onClick={() => setShowPreview(false)}
+              className="p-4 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-2xl transition-all group"
+              aria-label="Close modal"
+            >
+              <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
+            </button>
+          </div>
+        </div>
+        
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-12 bg-slate-950/50 custom-scrollbar">
+          <div className="max-w-3xl mx-auto shadow-2xl shadow-black/90 border border-slate-800 rounded-3xl overflow-hidden bg-[#020617]">
+            {previewImage && (
+              <img 
+                src={previewImage} 
+                alt="PDF Preview" 
+                className="w-full h-auto block"
+                referrerPolicy="no-referrer"
+              />
+            )}
+          </div>
+        </div>
 
-                {/* Footer */}
-                <div className="p-6 border-t border-slate-800 bg-slate-900/80 flex items-center justify-between">
-                  <p className="text-[10px] text-slate-600 font-bold uppercase tracking-[0.3em]">© 2026 TUHON TRADING LEAGUE REPORT SERVICE</p>
-                  <button
-                    onClick={() => setShowPreview(false)}
-                    className="px-8 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-black rounded-xl transition-all uppercase tracking-widest"
-                  >
-                    닫기
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.getElementById('modal-root')!
-      )}
+        {/* Footer */}
+        <div className="p-6 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between">
+          <div className="hidden sm:block">
+            <p className="text-[10px] text-slate-600 font-bold uppercase tracking-[0.4em]">© 2026 TUHON TRADING LEAGUE REPORT SERVICE</p>
+          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button
+              onClick={handleDownloadPDF}
+              disabled={isDownloading}
+              className="sm:hidden flex-1 py-4 bg-orange-600 text-white text-xs font-black rounded-xl flex items-center justify-center gap-2"
+            >
+              <Download className="w-4 h-4" /> 다운로드
+            </button>
+            <button
+              onClick={() => setShowPreview(false)}
+              className="flex-1 sm:flex-none px-12 py-4 bg-slate-800 hover:bg-slate-700 text-white text-xs font-black rounded-xl transition-all uppercase tracking-widest"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
