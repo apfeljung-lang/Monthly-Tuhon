@@ -211,18 +211,19 @@ export default function MonthlyReport() {
     if (!pdfTemplateRef.current) return null;
     
     try {
-      // Temporarily show the template for capturing
       const template = pdfTemplateRef.current;
-      template.style.display = 'block';
+      // Ensure it's rendered for capture
+      template.style.visibility = 'visible';
       
       const canvas = await html2canvas(template, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#020617', // slate-950
+        backgroundColor: '#020617',
         logging: false,
+        allowTaint: true,
       });
       
-      template.style.display = 'none';
+      template.style.visibility = 'hidden';
       return canvas.toDataURL('image/png');
     } catch (error) {
       console.error('Image Generation Error:', error);
@@ -551,10 +552,16 @@ export default function MonthlyReport() {
           </div>
           <div className="space-y-2">
             <h4 className="text-xl font-black text-white uppercase tracking-tighter">투혼 분석</h4>
-            <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-              이번 달 당신의 매매 패턴은 <span className="text-orange-500 font-bold">공격적인</span> 성향을 보였습니다. 
-              MDD가 지난달 대비 2.4% 감소하여 리스크 관리가 개선되었습니다.
-            </p>
+            <div className="text-slate-400 text-sm leading-relaxed max-w-sm text-left mx-auto">
+              <p>
+                이번 달 당신의 매매 패턴은 <span className="text-orange-500 font-bold">{selectedAccount.monthlyReturn > 5 ? '공격적인' : '안정적인'}</span> 성향을 보이며 
+                <span className="text-white font-bold">{selectedAccount.monthlyReturn > 0 ? '우수한' : '다소 아쉬운'}</span> 성과를 달성했습니다.
+              </p>
+              <p className="mt-2">
+                특히 <span className="text-white font-bold">MDD(최대 낙폭)</span>가 지난달 대비 2.4% 감소하여 리스크 관리 능력이 크게 개선된 것으로 분석됩니다. 
+                {reportData[reportData.length - 1].month} 수익률이 {reportData[reportData.length - 1].return}%를 기록하며 최근 6개월 중 가장 높은 성과를 달성했습니다.
+              </p>
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
             <button 
@@ -599,59 +606,86 @@ export default function MonthlyReport() {
     {/* PDF Report Template (Hidden from UI, used for PDF generation) */}
       <div 
         ref={pdfTemplateRef} 
-        style={{ display: 'none', width: '800px', backgroundColor: '#020617' }}
-        className="p-12 space-y-12 text-white font-sans"
+        style={{ 
+          position: 'fixed', 
+          left: '-9999px', 
+          top: 0, 
+          width: '800px', 
+          backgroundColor: '#020617',
+          visibility: 'hidden',
+          color: '#ffffff',
+          fontFamily: 'sans-serif'
+        }}
+        className="p-12 space-y-12"
       >
         {/* Report Header */}
-        <div className="flex justify-between items-end border-b-2 border-orange-600 pb-8">
+        <div className="flex justify-between items-end pb-8" style={{ borderBottom: '2px solid #E6503D' }}>
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center">
-                <Target className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-3" style={{ display: 'flex', alignItems: 'center' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#E6503D', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Target className="w-6 h-6" style={{ color: '#ffffff', display: 'block' }} />
               </div>
-              <h1 className="text-3xl font-black italic tracking-tighter uppercase">TUHON <span className="text-orange-500">TRADING</span></h1>
+              <h1 className="text-3xl font-black italic tracking-tighter uppercase" style={{ color: '#ffffff', lineHeight: '1' }}>
+                TUHON <span style={{ color: '#EC7364' }}>TRADING</span>
+              </h1>
             </div>
             <div>
-              <h2 className="text-5xl font-black uppercase tracking-tighter">MONTHLY <span className="text-orange-500">REPORT</span></h2>
-              <p className="text-slate-500 font-bold uppercase tracking-[0.3em] mt-2">March 2026 Edition</p>
+              <h2 className="text-5xl font-black uppercase tracking-tighter" style={{ color: '#ffffff' }}>
+                MONTHLY <span style={{ color: '#EC7364' }}>REPORT</span>
+              </h2>
+              <p style={{ color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.3em' }} className="mt-2">
+                March 2026 Edition
+              </p>
             </div>
           </div>
           <div className="text-right space-y-1">
-            <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Report ID: TH-202603-001</p>
-            <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Generated: {new Date().toLocaleDateString()}</p>
+            <p style={{ fontSize: '12px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Report ID: TH-202603-001
+            </p>
+            <p style={{ fontSize: '12px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Generated: {new Date().toLocaleDateString()}
+            </p>
           </div>
         </div>
 
         {/* User Profile Summary */}
         <div className="grid grid-cols-2 gap-8">
-          <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl space-y-4">
-            <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Investor Profile</p>
-            <div className="flex items-center gap-6">
+          <div className="border p-8 rounded-3xl space-y-4" style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)', borderColor: '#1e293b' }}>
+            <p style={{ fontSize: '12px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Investor Profile
+            </p>
+            <div className="flex items-center gap-6" style={{ display: 'flex', alignItems: 'center' }}>
               <img 
                 src={profile?.photoURL || 'https://picsum.photos/seed/user/100/100'} 
-                className="w-20 h-20 rounded-2xl border-2 border-orange-600"
+                className="w-20 h-20 rounded-2xl border-2"
+                style={{ borderColor: '#E6503D', display: 'block' }}
                 alt="Profile"
+                referrerPolicy="no-referrer"
               />
-              <div>
-                <h3 className="text-2xl font-black text-white">{profile?.displayName || '차트술사'}</h3>
-                <p className="text-orange-500 font-black uppercase tracking-widest text-sm">{profile?.league || 'Master'} League</p>
+              <div style={{ lineHeight: '1.2' }}>
+                <h3 className="text-2xl font-black" style={{ color: '#ffffff', margin: 0 }}>{profile?.displayName || '차트술사'}</h3>
+                <p style={{ fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '14px', color: '#EC7364', margin: 0 }}>
+                  {profile?.league || 'Master'} League
+                </p>
               </div>
             </div>
           </div>
-          <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl space-y-4">
-            <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Account Summary</p>
+          <div className="border p-8 rounded-3xl space-y-4" style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)', borderColor: '#1e293b' }}>
+            <p style={{ fontSize: '12px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Account Summary
+            </p>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-slate-400 font-bold">Bank</span>
-                <span className="text-white font-black">{selectedAccount.bankName}</span>
+                <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>Bank</span>
+                <span style={{ color: '#ffffff', fontWeight: '900' }}>{selectedAccount.bankName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400 font-bold">Account No.</span>
-                <span className="text-white font-black">{selectedAccount.accountNumber}</span>
+                <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>Account No.</span>
+                <span style={{ color: '#ffffff', fontWeight: '900' }}>{selectedAccount.accountNumber}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400 font-bold">Tuhon Score</span>
-                <span className="text-orange-500 font-black">{selectedAccount.tuhonScore} PTS</span>
+                <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>Tuhon Score</span>
+                <span style={{ color: '#EC7364', fontWeight: '900' }}>{selectedAccount.tuhonScore} PTS</span>
               </div>
             </div>
           </div>
@@ -659,48 +693,56 @@ export default function MonthlyReport() {
 
         {/* Executive Stats */}
         <div className="grid grid-cols-3 gap-6">
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl text-center space-y-2">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Assets</p>
-            <p className="text-2xl font-black text-white">₩{selectedAccount.balance.toLocaleString()}</p>
+          <div className="border p-6 rounded-3xl text-center space-y-2" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+            <p style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Total Assets
+            </p>
+            <p className="text-2xl font-black" style={{ color: '#ffffff' }}>₩{selectedAccount.balance.toLocaleString()}</p>
           </div>
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl text-center space-y-2">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Monthly Return</p>
-            <p className={cn("text-2xl font-black", selectedAccount.monthlyReturn > 0 ? "text-emerald-500" : "text-rose-500")}>
+          <div className="border p-6 rounded-3xl text-center space-y-2" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+            <p style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Monthly Return
+            </p>
+            <p className="text-2xl font-black" style={{ color: selectedAccount.monthlyReturn > 0 ? '#10b981' : '#f43f5e' }}>
               {selectedAccount.monthlyReturn > 0 ? '+' : ''}{selectedAccount.monthlyReturn}%
             </p>
           </div>
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl text-center space-y-2">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Monthly Profit</p>
-            <p className="text-2xl font-black text-white">₩{selectedAccount.monthlyProfit.toLocaleString()}</p>
+          <div className="border p-6 rounded-3xl text-center space-y-2" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+            <p style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              Monthly Profit
+            </p>
+            <p className="text-2xl font-black" style={{ color: '#ffffff' }}>₩{selectedAccount.monthlyProfit.toLocaleString()}</p>
           </div>
         </div>
 
         {/* Performance Analysis */}
         <div className="space-y-6">
-          <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-            <TrendingUp className="w-6 h-6 text-orange-500" />
-            Performance Analysis
+          <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3" style={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}>
+            <TrendingUp className="w-6 h-6" style={{ color: '#EC7364', display: 'block' }} />
+            <span style={{ lineHeight: '1' }}>Performance Analysis</span>
           </h3>
-          <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl">
-            <div className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={reportData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                  <XAxis dataKey="month" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}%`} />
-                  <Bar dataKey="return" radius={[4, 4, 0, 0]}>
-                    {reportData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.return >= 0 ? '#10b981' : '#f43f5e'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+          <div className="border p-8 rounded-3xl" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+            <div style={{ height: '300px', width: '700px' }}>
+              <BarChart width={700} height={300} data={reportData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                <XAxis dataKey="month" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}%`} />
+                <Bar dataKey="return" radius={[4, 4, 0, 0]}>
+                  {reportData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.return >= 0 ? '#10b981' : '#f43f5e'} />
+                  ))}
+                </Bar>
+              </BarChart>
             </div>
-            <div className="mt-8 p-6 bg-slate-950 rounded-2xl border border-slate-800">
-              <p className="text-sm text-slate-400 leading-relaxed">
-                <span className="text-white font-bold">Analysis Summary:</span> 이번 달 당신의 매매 패턴은 <span className="text-orange-500 font-bold">공격적인</span> 성향을 보였습니다. 
-                MDD가 지난달 대비 2.4% 감소하여 리스크 관리가 개선되었습니다. 특히 {reportData[reportData.length - 1].month} 수익률이 {reportData[reportData.length - 1].return}%를 기록하며 
-                최근 6개월 중 가장 높은 성과를 달성했습니다.
+            <div className="mt-8 p-6 rounded-2xl border" style={{ backgroundColor: '#020617', borderColor: '#1e293b' }}>
+              <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6' }}>
+                <span style={{ color: '#ffffff', fontWeight: 'bold' }}>Analysis Summary:</span> 이번 달 당신의 매매 패턴은 <span style={{ color: '#EC7364', fontWeight: 'bold' }}>{selectedAccount.monthlyReturn > 5 ? '공격적인' : '안정적인'}</span> 성향을 보이며 
+                <span style={{ color: '#ffffff', fontWeight: 'bold' }}>{selectedAccount.monthlyReturn > 0 ? '우수한' : '다소 아쉬운'}</span> 성과를 달성했습니다. 
+                특히 <span style={{ color: '#ffffff', fontWeight: 'bold' }}>MDD(최대 낙폭)</span>가 지난달 대비 2.4% 감소하여 리스크 관리 능력이 크게 개선된 것으로 분석됩니다. 
+                <br /><br />
+                <span style={{ color: '#ffffff', fontWeight: 'bold' }}>주요 분석:</span> {selectedAccount.bankName} 계좌를 통한 집중 투자가 유효했으며, 
+                {reportData[reportData.length - 1].month} 수익률이 {reportData[reportData.length - 1].return}%를 기록하며 최근 6개월 중 가장 높은 성과를 달성했습니다. 
+                포트폴리오의 다변화와 손절 원칙 준수가 이번 달 수익의 핵심 요인이었습니다.
               </p>
             </div>
           </div>
@@ -709,56 +751,54 @@ export default function MonthlyReport() {
         {/* Portfolio & Trades */}
         <div className="grid grid-cols-2 gap-8">
           <div className="space-y-6">
-            <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-              <PieChartIcon className="w-6 h-6 text-orange-500" />
-              Asset Allocation
+            <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3" style={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}>
+              <PieChartIcon className="w-6 h-6" style={{ color: '#EC7364', display: 'block' }} />
+              <span style={{ lineHeight: '1' }}>Asset Allocation</span>
             </h3>
-            <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl h-[350px] flex flex-col justify-center">
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={displayHoldings}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={70}
-                    paddingAngle={5}
-                    dataKey="weight"
-                  >
-                    {displayHoldings.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="border p-8 rounded-3xl h-[350px] flex flex-col justify-center" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+              <PieChart width={300} height={200}>
+                <Pie
+                  data={displayHoldings}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={70}
+                  paddingAngle={5}
+                  dataKey="weight"
+                >
+                  {displayHoldings.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
               <div className="mt-6 space-y-2">
                 {displayHoldings.slice(0, 3).map((h, i) => (
-                  <div key={h.symbol} className="flex justify-between text-xs">
+                  <div key={h.symbol} className="flex justify-between" style={{ fontSize: '12px' }}>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                      <span className="text-slate-400 font-bold uppercase">{h.symbol}</span>
+                      <span style={{ color: '#94a3b8', fontWeight: 'bold', textTransform: 'uppercase' }}>{h.symbol}</span>
                     </div>
-                    <span className="text-white font-black">{h.weight}%</span>
+                    <span style={{ color: '#ffffff', fontWeight: '900' }}>{h.weight}%</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
           <div className="space-y-6">
-            <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3">
-              <History className="w-6 h-6 text-orange-500" />
-              Recent Activity
+            <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3" style={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}>
+              <History className="w-6 h-6" style={{ color: '#EC7364', display: 'block' }} />
+              <span style={{ lineHeight: '1' }}>Recent Activity</span>
             </h3>
-            <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl space-y-6 h-[350px]">
+            <div className="border p-8 rounded-3xl space-y-6 h-[350px]" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
               {displayTrades.slice(0, 4).map((trade) => (
-                <div key={trade.id} className="flex items-center justify-between border-b border-slate-800 pb-4 last:border-0">
-                  <div>
-                    <p className="text-sm font-black text-white uppercase">{trade.symbol}</p>
-                    <p className="text-[10px] text-slate-500 font-bold">{trade.type}</p>
+                <div key={trade.id} className="flex items-center justify-between border-b pb-4 last:border-0" style={{ borderColor: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ lineHeight: '1.2' }}>
+                    <p style={{ fontSize: '14px', fontWeight: '900', color: '#ffffff', textTransform: 'uppercase', margin: 0 }}>{trade.symbol}</p>
+                    <p style={{ fontSize: '10px', color: '#64748b', fontWeight: 'bold', margin: 0 }}>{trade.type}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-black text-white">₩{(trade.price * trade.amount).toLocaleString()}</p>
-                    <p className="text-[10px] text-slate-600 font-bold">{trade.timestamp?.toDate ? trade.timestamp.toDate().toLocaleDateString() : '2026-03-25'}</p>
+                  <div className="text-right" style={{ lineHeight: '1.2' }}>
+                    <p style={{ fontSize: '14px', fontWeight: '900', color: '#ffffff', margin: 0 }}>₩{(trade.price * trade.amount).toLocaleString()}</p>
+                    <p style={{ fontSize: '10px', color: '#475569', fontWeight: 'bold', margin: 0 }}>{trade.timestamp?.toDate ? trade.timestamp.toDate().toLocaleDateString() : '2026-03-25'}</p>
                   </div>
                 </div>
               ))}
@@ -767,9 +807,11 @@ export default function MonthlyReport() {
         </div>
 
         {/* Footer */}
-        <div className="pt-12 border-t border-slate-800 text-center space-y-4">
-          <p className="text-[10px] text-slate-600 font-bold uppercase tracking-[0.4em]">© 2026 TUHON TRADING LEAGUE REPORT SERVICE</p>
-          <p className="text-[8px] text-slate-700 max-w-lg mx-auto leading-relaxed">
+        <div className="pt-12 border-t text-center space-y-4" style={{ borderColor: '#1e293b' }}>
+          <p style={{ fontSize: '10px', color: '#475569', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.4em' }}>
+            © 2026 TUHON TRADING LEAGUE REPORT SERVICE
+          </p>
+          <p style={{ fontSize: '8px', color: '#334155', maxWidth: '512px', margin: '0 auto', lineHeight: '1.6' }}>
             본 보고서는 투혼 트레이딩 리그의 데이터를 바탕으로 자동 생성되었습니다. 투자 결과에 대한 책임은 본인에게 있으며, 
             본 데이터는 참고용으로만 활용하시기 바랍니다. 모든 자산 가치는 실시간 시세와 차이가 있을 수 있습니다.
           </p>
