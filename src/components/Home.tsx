@@ -1,29 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, Globe, Trophy, TrendingUp, Zap, Target, Award, Medal, Star } from 'lucide-react';
+import { ArrowRight, Globe, Trophy, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthGuard';
 import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { UserProfile } from '../types';
 import { MOCK_RANKERS } from '../mockData';
+import { LeagueBadge } from './LeagueBadge';
 
 function RealtimeRanking() {
   const [topUsers, setTopUsers] = useState<UserProfile[]>(MOCK_RANKERS.slice(0, 5));
-
-  const getBadgeIcon = (badge: string) => {
-    switch (badge) {
-      case 'Top 1%': return <Zap className="w-2.5 h-2.5 text-yellow-500 fill-yellow-500" />;
-      case 'Legend': return <Trophy className="w-2.5 h-2.5 text-orange-500 fill-orange-500" />;
-      case 'Rising Star': return <TrendingUp className="w-2.5 h-2.5 text-emerald-500" />;
-      case 'Consistent': return <Target className="w-2.5 h-2.5 text-blue-500" />;
-      case 'Newcomer': return <Star className="w-2.5 h-2.5 text-purple-500 fill-purple-500" />;
-      case 'Alpha': return <Zap className="w-2.5 h-2.5 text-red-500" />;
-      case 'Beta': return <Medal className="w-2.5 h-2.5 text-slate-400" />;
-      case 'Gamma': return <Award className="w-2.5 h-2.5 text-amber-700" />;
-      default: return null;
-    }
-  };
 
   useEffect(() => {
     const q = query(
@@ -102,21 +89,10 @@ function RealtimeRanking() {
                     )}
                   </div>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-xs md:text-sm font-black text-white uppercase tracking-tight truncate w-24 md:w-32">
-                        {user.displayName}
-                      </p>
-                      <div className="flex gap-1">
-                        {user.badges?.slice(0, 2).map(badge => (
-                          <div key={badge} title={badge}>
-                            {getBadgeIcon(badge)}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                      {user.league || 'Rookie'} League
+                    <p className="text-xs md:text-sm font-black text-white uppercase tracking-tight truncate w-24 md:w-32">
+                      {user.displayName}
                     </p>
+                    <LeagueBadge league={user.league} size="sm" showLabel={true} className="mt-1" />
                   </div>
                 </div>
                 <div className="text-right">

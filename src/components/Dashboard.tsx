@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { UserDetailModal } from './UserDetailModal';
 import { getDoc } from 'firebase/firestore';
+import { LeagueBadge } from './LeagueBadge';
 
 const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
 
@@ -61,11 +62,8 @@ const AccountCard = ({ account, isActive, league }: any) => (
       <CreditCard className="w-20 h-20 text-white" />
     </div>
     {isActive && (
-      <div className="absolute top-6 right-6 bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20 flex items-center gap-2">
-        <Trophy className="w-4 h-4 text-white" />
-        <span className="text-[10px] font-black text-white uppercase tracking-widest">
-          {league ? `${translateLeague(league)} League` : 'League Active'}
-        </span>
+      <div className="absolute top-6 right-6 flex items-center gap-2">
+        <LeagueBadge league={league} size="sm" className="bg-white/20 border-white/20 text-white" />
       </div>
     )}
     <div className="space-y-2">
@@ -522,7 +520,7 @@ export default function Dashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-black text-white truncate">{ranker.displayName}</p>
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{translateLeague(ranker.league)} 리그</p>
+                    <LeagueBadge league={ranker.league} size="sm" showLabel={true} className="mt-1" />
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-black text-emerald-500">+{ranker.monthlyReturn || 0}%</p>

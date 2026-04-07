@@ -3,26 +3,13 @@ import { collection, query, orderBy, onSnapshot, limit, doc, setDoc, deleteDoc, 
 import { db } from '../firebase';
 import { useAuth } from './AuthGuard';
 import { UserProfile, TradeLog, PortfolioHolding } from '../types';
-import { X, Zap, Target, Award, TrendingUp, Briefcase, History, PieChart as PieChartIcon, ArrowLeft, UserPlus, UserCheck, Trophy, Medal, Star } from 'lucide-react';
+import { X, Zap, Target, Award, TrendingUp, Briefcase, History, PieChart as PieChartIcon, ArrowLeft, UserPlus, UserCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { cn, translateLeague } from '../lib/utils';
+import { LeagueBadge } from './LeagueBadge';
 
 const COLORS = ['#EC7364', '#E6503D', '#C13D2D', '#9E3225', '#7C271D', '#5A1C15'];
-
-const getBadgeIcon = (badge: string) => {
-  switch (badge) {
-    case 'Top 1%': return <Zap className="w-3 h-3 text-yellow-500 fill-yellow-500" />;
-    case 'Legend': return <Trophy className="w-3 h-3 text-orange-500 fill-orange-500" />;
-    case 'Rising Star': return <TrendingUp className="w-3 h-3 text-emerald-500" />;
-    case 'Consistent': return <Target className="w-3 h-3 text-blue-500" />;
-    case 'Newcomer': return <Star className="w-3 h-3 text-purple-500 fill-purple-500" />;
-    case 'Alpha': return <Zap className="w-3 h-3 text-red-500" />;
-    case 'Beta': return <Medal className="w-3 h-3 text-slate-400" />;
-    case 'Gamma': return <Award className="w-3 h-3 text-amber-700" />;
-    default: return null;
-  }
-};
 
 const MOCK_DETAIL_HOLDINGS: PortfolioHolding[] = [
   { symbol: 'NVDA', name: 'Nvidia', weight: 45, value: 2400000 },
@@ -169,14 +156,12 @@ export const UserDetailModal = ({ user: targetUser, onClose }: { user: UserProfi
             <div className="mb-2">
               <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tighter truncate w-32 md:w-auto">{targetUser.displayName}</h3>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[8px] md:text-[10px] font-black bg-orange-600 text-white px-2 py-0.5 rounded uppercase tracking-widest">
-                  {translateLeague(targetUser.league)} 리그
-                </span>
-                <div className="flex gap-2">
-                  {targetUser.badges?.map(badge => (
-                    <div key={badge} title={badge} className="flex items-center justify-center bg-slate-800/50 p-1 rounded-lg border border-slate-700/50">
-                      {getBadgeIcon(badge)}
-                    </div>
+                <LeagueBadge league={targetUser.league} size="sm" />
+                <div className="flex gap-1">
+                  {targetUser.badges?.slice(0, 2).map(badge => (
+                    <span key={badge} className="text-[8px] font-black bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                      {badge}
+                    </span>
                   ))}
                 </div>
               </div>

@@ -8,22 +8,9 @@ import { Trophy, Medal, Star, Filter, Search, ChevronRight, X, Zap, Target, Awar
 import { motion, AnimatePresence } from 'motion/react';
 import { cn, translateLeague } from '../lib/utils';
 import { UserDetailModal } from './UserDetailModal';
+import { LeagueBadge } from './LeagueBadge';
 
 const COLORS = ['#EC7364', '#E6503D', '#C13D2D', '#9E3225', '#7C271D', '#5A1C15'];
-
-const getBadgeIcon = (badge: string) => {
-  switch (badge) {
-    case 'Top 1%': return <Zap className="w-3 h-3 text-yellow-500 fill-yellow-500" />;
-    case 'Legend': return <Trophy className="w-3 h-3 text-orange-500 fill-orange-500" />;
-    case 'Rising Star': return <TrendingUp className="w-3 h-3 text-emerald-500" />;
-    case 'Consistent': return <Target className="w-3 h-3 text-blue-500" />;
-    case 'Newcomer': return <Star className="w-3 h-3 text-purple-500 fill-purple-500" />;
-    case 'Alpha': return <Zap className="w-3 h-3 text-red-500" />;
-    case 'Beta': return <Medal className="w-3 h-3 text-slate-400" />;
-    case 'Gamma': return <Award className="w-3 h-3 text-amber-700" />;
-    default: return null;
-  }
-};
 
 const MOCK_DETAIL_HOLDINGS: PortfolioHolding[] = [
   { symbol: 'NVDA', name: 'Nvidia', weight: 45, value: 2400000 },
@@ -159,30 +146,28 @@ export default function RankingList() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="text-xs md:text-sm font-bold text-white group-hover:text-orange-500 transition-colors truncate">{ranker.displayName}</p>
-                    <div className="hidden sm:flex gap-1.5 items-center">
-                      {ranker.badges?.slice(0, 3).map(badge => (
-                        <div key={badge} title={badge} className="flex items-center justify-center">
-                          {getBadgeIcon(badge)}
-                        </div>
+                    <div className="hidden sm:flex gap-1">
+                      {ranker.badges?.slice(0, 2).map(badge => (
+                        <span key={badge} className="text-[8px] font-black bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded uppercase tracking-tighter whitespace-nowrap">
+                          {badge}
+                        </span>
                       ))}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    <span className="md:hidden text-[8px] font-black bg-orange-600/20 text-orange-500 px-1.5 py-0.5 rounded uppercase tracking-tighter">
-                      {translateLeague(ranker.league)}
-                    </span>
-                    <div className="sm:hidden flex gap-1.5 items-center">
-                      {ranker.badges?.slice(0, 2).map(badge => (
-                        <div key={badge} title={badge} className="flex items-center justify-center">
-                          {getBadgeIcon(badge)}
-                        </div>
+                    <LeagueBadge league={ranker.league} size="sm" className="md:hidden" />
+                    <div className="sm:hidden flex gap-1">
+                      {ranker.badges?.slice(0, 1).map(badge => (
+                        <span key={badge} className="text-[8px] font-black bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                          {badge}
+                        </span>
                       ))}
                     </div>
                   </div>
                 </div>
               </div>
               <div className="hidden md:block md:col-span-1 text-right">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{translateLeague(ranker.league)}</span>
+                <LeagueBadge league={ranker.league} size="sm" className="ml-auto" />
               </div>
               <div className="col-span-4 md:col-span-2 text-right">
                 <span className={cn(

@@ -4,14 +4,15 @@ import { Link } from 'react-router-dom';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from './AuthGuard';
 import { BankAccount, League } from '../types';
-import { Trophy, CheckCircle2, CreditCard, Wallet, Loader2, ChevronRight, Star, ShieldCheck, ArrowRight, ShieldAlert, X } from 'lucide-react';
+import { Trophy, CheckCircle2, CreditCard, Wallet, Loader2, ChevronRight, Star, ShieldCheck, ArrowRight, ShieldAlert, X, Zap, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
+import { LeagueBadge } from './LeagueBadge';
 
-const LEAGUES: { id: League; name: string; minAssets: number; description: string; color: string }[] = [
-  { id: 'Rookie', name: '루키 리그', minAssets: 1, description: '투혼의 첫걸음. 누구나 참여 가능한 기초 리그입니다.', color: 'from-slate-400 to-slate-600' },
-  { id: 'Pro', name: '프로 리그', minAssets: 10000000, description: '실전 트레이더들의 전장. 1,000만원 이상의 자산이 필요합니다.', color: 'from-orange-400 to-orange-600' },
-  { id: 'Master', name: '마스터 리그', minAssets: 100000000, description: '최상위 1%의 격전지. 1억원 이상의 자산가들을 위한 리그입니다.', color: 'from-purple-500 to-purple-700' },
+const LEAGUES: { id: League; name: string; minAssets: number; description: string; color: string; icon: any }[] = [
+  { id: 'Rookie', name: '루키 리그', minAssets: 1, description: '투혼의 첫걸음. 누구나 참여 가능한 기초 리그입니다.', color: 'from-slate-400 to-slate-600', icon: Zap },
+  { id: 'Pro', name: '프로 리그', minAssets: 10000000, description: '실전 트레이더들의 전장. 1,000만원 이상의 자산이 필요합니다.', color: 'from-orange-400 to-orange-600', icon: Target },
+  { id: 'Master', name: '마스터 리그', minAssets: 100000000, description: '최상위 1%의 격전지. 1억원 이상의 자산가들을 위한 리그입니다.', color: 'from-purple-500 to-purple-700', icon: Trophy },
 ];
 
 const MOCK_ACCOUNTS: BankAccount[] = [
@@ -194,9 +195,7 @@ export default function JoinLeague() {
             className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-[2.5rem] p-8 text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-orange-600/20"
           >
             <div className="flex items-center gap-6">
-              <div className="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center">
-                <Star className="w-8 h-8 text-white fill-white" />
-              </div>
+              <LeagueBadge league={profile.league} size="lg" className="bg-white/20 border-white/20 text-white" />
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.3em] opacity-70">현재 참여 중인 리그</p>
                 <h3 className="text-3xl font-black uppercase tracking-tighter">
@@ -247,7 +246,7 @@ export default function JoinLeague() {
             >
               <div className={cn("absolute top-0 right-0 w-32 h-32 bg-gradient-to-br opacity-5 blur-2xl", league.color)} />
               <div className={cn("w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center", league.color)}>
-                <Trophy className="w-6 h-6 text-white" />
+                <league.icon className="w-6 h-6 text-white" />
               </div>
               <div className="space-y-2">
                 <h4 className="text-xl font-black text-white uppercase tracking-tighter">{league.name}</h4>
