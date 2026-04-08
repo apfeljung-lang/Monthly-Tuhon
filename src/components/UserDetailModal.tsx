@@ -119,7 +119,7 @@ export const UserDetailModal = ({ user: targetUser, onClose }: { user: UserProfi
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div 
@@ -179,7 +179,7 @@ export const UserDetailModal = ({ user: targetUser, onClose }: { user: UserProfi
                 exit={{ opacity: 0, x: 20 }}
                 className="space-y-6 md:space-y-8"
               >
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                   <div className="bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-700/50">
                     <p className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">총 자산</p>
                     <p className="text-xs md:text-sm font-black text-white">₩{(targetUser.totalAssets || 0).toLocaleString()}</p>
@@ -194,12 +194,25 @@ export const UserDetailModal = ({ user: targetUser, onClose }: { user: UserProfi
                     </p>
                   </div>
                   <div className="bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-700/50">
+                    <p className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">수익금</p>
+                    <p className={cn(
+                      "text-xs md:text-sm font-black",
+                      (targetUser.monthlyProfit || 0) > 0 ? "text-emerald-500" : "text-rose-500"
+                    )}>
+                      {targetUser.monthlyProfit > 0 ? '+' : ''}₩{(targetUser.monthlyProfit || 0).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-700/50">
                     <p className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">투혼 점수</p>
                     <p className="text-xs md:text-sm font-black text-orange-500">{targetUser.tuhonScore || 0}</p>
                   </div>
                   <div className="bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-700/50">
                     <p className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">팔로워</p>
                     <p className="text-xs md:text-sm font-black text-white">{(targetUser.followers || 0).toLocaleString()}</p>
+                  </div>
+                  <div className="bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-700/50">
+                    <p className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">리그</p>
+                    <p className="text-xs md:text-sm font-black text-white uppercase">{translateLeague(targetUser.league || 'Rookie')}</p>
                   </div>
                 </div>
 

@@ -330,7 +330,7 @@ export default function MonthlyReport() {
         <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-2">
           <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic">
-            Monthly <span className="text-orange-500">Report</span>
+            월간 <span className="text-orange-500">보고서</span>
           </h2>
           <p className="text-slate-500 font-medium">이번 달 당신의 투혼을 숫자로 요약한 월간 보고서입니다.</p>
         </div>
@@ -631,19 +631,19 @@ export default function MonthlyReport() {
             </div>
             <div>
               <h2 className="text-5xl font-black uppercase tracking-tighter" style={{ color: '#ffffff' }}>
-                MONTHLY <span style={{ color: '#EC7364' }}>REPORT</span>
+                월간 <span style={{ color: '#EC7364' }}>보고서</span>
               </h2>
               <p style={{ color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.3em' }} className="mt-2">
-                March 2026 Edition
+                2026년 3월호
               </p>
             </div>
           </div>
           <div className="text-right space-y-1">
             <p style={{ fontSize: '12px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Report ID: TH-202603-001
+              보고서 ID: TH-202603-001
             </p>
             <p style={{ fontSize: '12px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Generated: {new Date().toLocaleDateString()}
+              생성일: {new Date().toLocaleDateString()}
             </p>
           </div>
         </div>
@@ -652,7 +652,7 @@ export default function MonthlyReport() {
         <div className="grid grid-cols-2 gap-8">
           <div className="border p-8 rounded-3xl space-y-4" style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)', borderColor: '#1e293b' }}>
             <p style={{ fontSize: '12px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Investor Profile
+              투자자 프로필
             </p>
             <div className="flex items-center gap-6" style={{ display: 'flex', alignItems: 'center' }}>
               <img 
@@ -672,19 +672,19 @@ export default function MonthlyReport() {
           </div>
           <div className="border p-8 rounded-3xl space-y-4" style={{ backgroundColor: 'rgba(15, 23, 42, 0.5)', borderColor: '#1e293b' }}>
             <p style={{ fontSize: '12px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Account Summary
+              계좌 요약
             </p>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>Bank</span>
+                <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>금융기관</span>
                 <span style={{ color: '#ffffff', fontWeight: '900' }}>{selectedAccount.bankName}</span>
               </div>
               <div className="flex justify-between">
-                <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>Account No.</span>
+                <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>계좌번호</span>
                 <span style={{ color: '#ffffff', fontWeight: '900' }}>{selectedAccount.accountNumber}</span>
               </div>
               <div className="flex justify-between">
-                <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>Tuhon Score</span>
+                <span style={{ color: '#94a3b8', fontWeight: 'bold' }}>투혼 점수</span>
                 <span style={{ color: '#EC7364', fontWeight: '900' }}>{selectedAccount.tuhonScore} PTS</span>
               </div>
             </div>
@@ -695,13 +695,13 @@ export default function MonthlyReport() {
         <div className="grid grid-cols-3 gap-6">
           <div className="border p-6 rounded-3xl text-center space-y-2" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
             <p style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Total Assets
+              총 자산
             </p>
             <p className="text-2xl font-black" style={{ color: '#ffffff' }}>₩{selectedAccount.balance.toLocaleString()}</p>
           </div>
           <div className="border p-6 rounded-3xl text-center space-y-2" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
             <p style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Monthly Return
+              월간 수익률
             </p>
             <p className="text-2xl font-black" style={{ color: selectedAccount.monthlyReturn > 0 ? '#10b981' : '#f43f5e' }}>
               {selectedAccount.monthlyReturn > 0 ? '+' : ''}{selectedAccount.monthlyReturn}%
@@ -709,7 +709,7 @@ export default function MonthlyReport() {
           </div>
           <div className="border p-6 rounded-3xl text-center space-y-2" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
             <p style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-              Monthly Profit
+              월간 수익금
             </p>
             <p className="text-2xl font-black" style={{ color: '#ffffff' }}>₩{selectedAccount.monthlyProfit.toLocaleString()}</p>
           </div>
@@ -719,7 +719,7 @@ export default function MonthlyReport() {
         <div className="space-y-6">
           <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3" style={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}>
             <TrendingUp className="w-6 h-6" style={{ color: '#EC7364', display: 'block' }} />
-            <span style={{ lineHeight: '1' }}>Performance Analysis</span>
+            <span style={{ lineHeight: '1' }}>성과 분석</span>
           </h3>
           <div className="border p-8 rounded-3xl" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
             <div style={{ height: '300px', width: '700px' }}>
@@ -753,7 +753,7 @@ export default function MonthlyReport() {
           <div className="space-y-6">
             <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3" style={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}>
               <PieChartIcon className="w-6 h-6" style={{ color: '#EC7364', display: 'block' }} />
-              <span style={{ lineHeight: '1' }}>Asset Allocation</span>
+              <span style={{ lineHeight: '1' }}>자산 배분</span>
             </h3>
             <div className="border p-8 rounded-3xl h-[350px] flex flex-col justify-center" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
               <PieChart width={300} height={200}>
@@ -787,7 +787,7 @@ export default function MonthlyReport() {
           <div className="space-y-6">
             <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3" style={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}>
               <History className="w-6 h-6" style={{ color: '#EC7364', display: 'block' }} />
-              <span style={{ lineHeight: '1' }}>Recent Activity</span>
+              <span style={{ lineHeight: '1' }}>최근 활동</span>
             </h3>
             <div className="border p-8 rounded-3xl space-y-6 h-[350px]" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
               {displayTrades.slice(0, 4).map((trade) => (

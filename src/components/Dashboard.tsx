@@ -14,6 +14,8 @@ import { LeagueBadge } from './LeagueBadge';
 
 const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
 
+import { MOCK_RANKERS } from '../mockData';
+
 const StatCard = ({ title, value, subValue, icon: Icon, trend, color = "orange" }: any) => (
   <motion.div 
     initial={{ opacity: 0, y: 20 }}
@@ -195,15 +197,41 @@ export default function Dashboard() {
   const [isLoadingUser, setIsLoadingUser] = useState(false);
 
   const handleUserClick = async (targetUid: string) => {
-    if (isLoadingUser) return;
+    if (!targetUid || isLoadingUser) return;
+    
     setIsLoadingUser(true);
+    // Small delay to ensure smooth transition
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Check if it's a mock ranker first (from either local or global mock list)
+    const mockRanker = MOCK_TOP_RANKERS.find(r => r.uid === targetUid) || 
+                       MOCK_RANKERS.find(r => r.uid === targetUid);
+    
+    if (mockRanker) {
+      setSelectedUser(mockRanker);
+      setIsLoadingUser(false);
+      return;
+    }
+
     try {
       const userDoc = await getDoc(doc(db, 'users', targetUid));
       if (userDoc.exists()) {
-        setSelectedUser(userDoc.data() as UserProfile);
+        setSelectedUser({ uid: userDoc.id, ...userDoc.data() } as UserProfile);
+      } else {
+        // Fallback: if user doesn't exist in 'users' collection, 
+        // but we have basic info from the following list, use that
+        const followedUser = followingUsers.find(u => u.uid === targetUid);
+        if (followedUser) {
+          setSelectedUser(followedUser as UserProfile);
+        }
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
+      // Fallback on error
+      const followedUser = followingUsers.find(u => u.uid === targetUid);
+      if (followedUser) {
+        setSelectedUser(followedUser as UserProfile);
+      }
     } finally {
       setIsLoadingUser(false);
     }
@@ -214,12 +242,12 @@ export default function Dashboard() {
 
     const followingRef = collection(db, 'users', user.uid, 'following');
     const unsubFollowing = onSnapshot(query(followingRef, orderBy('timestamp', 'desc')), (snapshot) => {
-      setFollowingUsers(snapshot.docs.map(doc => doc.data()));
+      setFollowingUsers(snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() })));
     });
 
     const q = query(collection(db, 'users'), orderBy('tuhonScore', 'desc'), limit(3));
     const unsubRankers = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => doc.data() as UserProfile);
+      const data = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as UserProfile));
       setTopRankers(data.length > 0 ? data : MOCK_TOP_RANKERS);
     });
 
@@ -543,7 +571,7 @@ export default function Dashboard() {
       </AnimatePresence>
 
       {isLoadingUser && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-[2px]">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/20 backdrop-blur-[2px]">
           <div className="w-8 h-8 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
         </div>
       )}
