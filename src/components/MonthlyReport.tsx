@@ -221,6 +221,7 @@ export default function MonthlyReport() {
         backgroundColor: '#020617',
         logging: false,
         allowTaint: true,
+        windowWidth: 800,
       });
       
       template.style.visibility = 'hidden';
@@ -621,11 +622,11 @@ export default function MonthlyReport() {
         {/* Report Header */}
         <div className="flex justify-between items-end pb-8" style={{ borderBottom: '2px solid #E6503D' }}>
           <div className="space-y-4">
-            <div className="flex items-center gap-3" style={{ display: 'flex', alignItems: 'center' }}>
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#E6503D', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Target className="w-6 h-6" style={{ color: '#ffffff', display: 'block' }} />
+            <div className="flex items-center gap-3" style={{ margin: 0 }}>
+              <div className="w-10 h-10 rounded-xl" style={{ backgroundColor: '#E6503D', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', verticalAlign: 'middle' }}>
+                <Target className="w-6 h-6" style={{ color: '#ffffff' }} />
               </div>
-              <h1 className="text-3xl font-black italic tracking-tighter uppercase" style={{ color: '#ffffff', lineHeight: '1' }}>
+              <h1 className="text-3xl font-black italic tracking-tighter uppercase" style={{ color: '#ffffff', display: 'inline-block', verticalAlign: 'middle', marginLeft: '12px', lineHeight: '1' }}>
                 TUHON <span style={{ color: '#EC7364' }}>TRADING</span>
               </h1>
             </div>
@@ -654,15 +655,15 @@ export default function MonthlyReport() {
             <p style={{ fontSize: '12px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
               투자자 프로필
             </p>
-            <div className="flex items-center gap-6" style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="flex items-center gap-6" style={{ margin: 0 }}>
               <img 
                 src={profile?.photoURL || 'https://picsum.photos/seed/user/100/100'} 
                 className="w-20 h-20 rounded-2xl border-2"
-                style={{ borderColor: '#E6503D', display: 'block' }}
+                style={{ borderColor: '#E6503D', display: 'inline-block', verticalAlign: 'middle' }}
                 alt="Profile"
                 referrerPolicy="no-referrer"
               />
-              <div style={{ lineHeight: '1.2' }}>
+              <div style={{ display: 'inline-block', verticalAlign: 'middle', marginLeft: '24px', lineHeight: '1.2' }}>
                 <h3 className="text-2xl font-black" style={{ color: '#ffffff', margin: 0 }}>{profile?.displayName || '차트술사'}</h3>
                 <p style={{ fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '14px', color: '#EC7364', margin: 0 }}>
                   {profile?.league || 'Master'} League
@@ -693,35 +694,35 @@ export default function MonthlyReport() {
 
         {/* Executive Stats */}
         <div className="grid grid-cols-3 gap-6">
-          <div className="border p-6 rounded-3xl text-center space-y-2" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
-            <p style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <div className="border p-8 rounded-3xl text-center space-y-3" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+            <p style={{ fontSize: '18px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
               총 자산
             </p>
-            <p className="text-2xl font-black" style={{ color: '#ffffff' }}>₩{selectedAccount.balance.toLocaleString()}</p>
+            <p className="text-2xl font-black" style={{ color: '#ffffff', lineHeight: '1.2' }}>₩{selectedAccount.balance.toLocaleString()}</p>
           </div>
-          <div className="border p-6 rounded-3xl text-center space-y-2" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
-            <p style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <div className="border p-8 rounded-3xl text-center space-y-3" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+            <p style={{ fontSize: '18px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
               월간 수익률
             </p>
-            <p className="text-2xl font-black" style={{ color: selectedAccount.monthlyReturn > 0 ? '#10b981' : '#f43f5e' }}>
+            <p className="text-2xl font-black" style={{ color: selectedAccount.monthlyReturn > 0 ? '#10b981' : '#f43f5e', lineHeight: '1.2' }}>
               {selectedAccount.monthlyReturn > 0 ? '+' : ''}{selectedAccount.monthlyReturn}%
             </p>
           </div>
-          <div className="border p-6 rounded-3xl text-center space-y-2" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
-            <p style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <div className="border p-8 rounded-3xl text-center space-y-3" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+            <p style={{ fontSize: '18px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
               월간 수익금
             </p>
-            <p className="text-2xl font-black" style={{ color: '#ffffff' }}>₩{selectedAccount.monthlyProfit.toLocaleString()}</p>
+            <p className="text-2xl font-black" style={{ color: '#ffffff', lineHeight: '1.2' }}>₩{selectedAccount.monthlyProfit.toLocaleString()}</p>
           </div>
         </div>
 
         {/* Performance Analysis */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3" style={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}>
-            <TrendingUp className="w-6 h-6" style={{ color: '#EC7364', display: 'block' }} />
-            <span style={{ lineHeight: '1' }}>성과 분석</span>
+        <div style={{ marginTop: '48px' }}>
+          <h3 className="text-xl font-black uppercase tracking-tight" style={{ color: '#ffffff', margin: '0 0 24px 0' }}>
+            <TrendingUp className="w-6 h-6" style={{ color: '#EC7364', marginRight: '12px', display: 'inline-block', verticalAlign: 'middle', position: 'relative', top: '4px' }} />
+            <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>성과 분석</span>
           </h3>
-          <div className="border p-8 rounded-3xl" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+          <div className="border p-8 rounded-3xl" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b', position: 'relative', zIndex: 1 }}>
             <div style={{ height: '300px', width: '700px' }}>
               <BarChart width={700} height={300} data={reportData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
@@ -736,7 +737,7 @@ export default function MonthlyReport() {
             </div>
             <div className="mt-8 p-6 rounded-2xl border" style={{ backgroundColor: '#020617', borderColor: '#1e293b' }}>
               <p style={{ fontSize: '14px', color: '#94a3b8', lineHeight: '1.6' }}>
-                <span style={{ color: '#ffffff', fontWeight: 'bold' }}>Analysis Summary:</span> 이번 달 당신의 매매 패턴은 <span style={{ color: '#EC7364', fontWeight: 'bold' }}>{selectedAccount.monthlyReturn > 5 ? '공격적인' : '안정적인'}</span> 성향을 보이며 
+                <span style={{ color: '#ffffff', fontWeight: 'bold' }}>분석 요약:</span> 이번 달 당신의 매매 패턴은 <span style={{ color: '#EC7364', fontWeight: 'bold' }}>{selectedAccount.monthlyReturn > 5 ? '공격적인' : '안정적인'}</span> 성향을 보이며 
                 <span style={{ color: '#ffffff', fontWeight: 'bold' }}>{selectedAccount.monthlyReturn > 0 ? '우수한' : '다소 아쉬운'}</span> 성과를 달성했습니다. 
                 특히 <span style={{ color: '#ffffff', fontWeight: 'bold' }}>MDD(최대 낙폭)</span>가 지난달 대비 2.4% 감소하여 리스크 관리 능력이 크게 개선된 것으로 분석됩니다. 
                 <br /><br />
@@ -749,13 +750,13 @@ export default function MonthlyReport() {
         </div>
 
         {/* Portfolio & Trades */}
-        <div className="grid grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3" style={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}>
-              <PieChartIcon className="w-6 h-6" style={{ color: '#EC7364', display: 'block' }} />
-              <span style={{ lineHeight: '1' }}>자산 배분</span>
+        <div className="grid grid-cols-2 gap-8" style={{ marginTop: '48px' }}>
+          <div>
+            <h3 className="text-xl font-black uppercase tracking-tight" style={{ color: '#ffffff', margin: '0 0 24px 0' }}>
+              <PieChartIcon className="w-6 h-6" style={{ color: '#EC7364', marginRight: '12px', display: 'inline-block', verticalAlign: 'middle', position: 'relative', top: '4px' }} />
+              <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>자산 배분</span>
             </h3>
-            <div className="border p-8 rounded-3xl h-[350px] flex flex-col justify-center" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+            <div className="border p-8 rounded-3xl h-[350px] flex flex-col justify-center" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b', position: 'relative', zIndex: 1 }}>
               <PieChart width={300} height={200}>
                 <Pie
                   data={displayHoldings}
@@ -784,12 +785,12 @@ export default function MonthlyReport() {
               </div>
             </div>
           </div>
-          <div className="space-y-6">
-            <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-3" style={{ color: '#ffffff', display: 'flex', alignItems: 'center' }}>
-              <History className="w-6 h-6" style={{ color: '#EC7364', display: 'block' }} />
-              <span style={{ lineHeight: '1' }}>최근 활동</span>
+          <div>
+            <h3 className="text-xl font-black uppercase tracking-tight" style={{ color: '#ffffff', margin: '0 0 24px 0' }}>
+              <History className="w-6 h-6" style={{ color: '#EC7364', marginRight: '12px', display: 'inline-block', verticalAlign: 'middle', position: 'relative', top: '4px' }} />
+              <span style={{ display: 'inline-block', verticalAlign: 'middle' }}>최근 활동</span>
             </h3>
-            <div className="border p-8 rounded-3xl space-y-6 h-[350px]" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }}>
+            <div className="border p-8 rounded-3xl space-y-6 h-[350px]" style={{ backgroundColor: '#0f172a', borderColor: '#1e293b', position: 'relative', zIndex: 1 }}>
               {displayTrades.slice(0, 4).map((trade) => (
                 <div key={trade.id} className="flex items-center justify-between border-b pb-4 last:border-0" style={{ borderColor: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div style={{ lineHeight: '1.2' }}>
