@@ -1,7 +1,13 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseConfig from '../firebase-applet-config.json';
+import firebaseConfigJson from '../firebase-applet-config.json';
+
+// 환경 변수에서 API 키를 가져오고, 나머지는 JSON 파일에서 가져옵니다.
+const firebaseConfig = {
+  ...firebaseConfigJson,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || firebaseConfigJson.apiKey
+};
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
