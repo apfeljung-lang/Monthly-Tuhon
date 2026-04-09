@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, limit, onSnapshot, doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { storage } from '../services/storage';
 import { useAuth } from './AuthGuard';
 import { UserProfile, BankAccount } from '../types';
 import { translateLeague } from '../lib/utils';
@@ -9,7 +8,6 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { UserDetailModal } from './UserDetailModal';
-import { getDoc } from 'firebase/firestore';
 import { LeagueBadge } from './LeagueBadge';
 
 const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
@@ -200,10 +198,8 @@ export default function Dashboard() {
     if (!targetUid || isLoadingUser) return;
     
     setIsLoadingUser(true);
-    // Small delay to ensure smooth transition
     await new Promise(resolve => setTimeout(resolve, 300));
 
-    // Check if it's a mock ranker first (from either local or global mock list)
     const mockRanker = MOCK_TOP_RANKERS.find(r => r.uid === targetUid) || 
                        MOCK_RANKERS.find(r => r.uid === targetUid);
     
@@ -213,48 +209,27 @@ export default function Dashboard() {
       return;
     }
 
-    try {
-      const userDoc = await getDoc(doc(db, 'users', targetUid));
-      if (userDoc.exists()) {
-        setSelectedUser({ uid: userDoc.id, ...userDoc.data() } as UserProfile);
-      } else {
-        // Fallback: if user doesn't exist in 'users' collection, 
-        // but we have basic info from the following list, use that
-        const followedUser = followingUsers.find(u => u.uid === targetUid);
-        if (followedUser) {
-          setSelectedUser(followedUser as UserProfile);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-      // Fallback on error
-      const followedUser = followingUsers.find(u => u.uid === targetUid);
-      if (followedUser) {
-        setSelectedUser(followedUser as UserProfile);
-      }
-    } finally {
-      setIsLoadingUser(false);
+    const allUsers = storage.getUsers();
+    const foundUser = allUsers.find(u => u.uid === targetUid);
+    if (foundUser) {
+      setSelectedUser(foundUser);
     }
+    setIsLoadingUser(false);
   };
 
   useEffect(() => {
-    if (!user) return;
+    const loadData = () => {
+      // 로컬 스토리지에서 팔로잉 정보 (여기서는 단순화를 위해 빈 배열 또는 목업)
+      setFollowingUsers([]);
 
-    const followingRef = collection(db, 'users', user.uid, 'following');
-    const unsubFollowing = onSnapshot(query(followingRef, orderBy('timestamp', 'desc')), (snapshot) => {
-      setFollowingUsers(snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() })));
-    });
-
-    const q = query(collection(db, 'users'), orderBy('tuhonScore', 'desc'), limit(3));
-    const unsubRankers = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as UserProfile));
-      setTopRankers(data.length > 0 ? data : MOCK_TOP_RANKERS);
-    });
-
-    return () => {
-      unsubRankers();
-      unsubFollowing();
+      const allUsers = storage.getUsers();
+      const sorted = allUsers.sort((a, b) => (b.tuhonScore || 0) - (a.tuhonScore || 0)).slice(0, 3);
+      setTopRankers(sorted.length > 0 ? sorted : MOCK_TOP_RANKERS);
     };
+
+    loadData();
+    const interval = setInterval(loadData, 5000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const displayProfile = profile || {
@@ -551,7 +526,9 @@ export default function Dashboard() {
                     <LeagueBadge league={ranker.league} size="sm" showLabel={true} className="mt-1" />
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-black text-emerald-500">+{ranker.monthlyReturn || 0}%</p>
+                    <p className="text-sm font-black text-emerald-500">
+                      {ranker.monthlyReturn !== undefined ? (ranker.monthlyReturn > 0 ? `+${ranker.monthlyReturn}` : ranker.monthlyReturn) : 0}%
+                    </p>
                     <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest">{ranker.tuhonScore || 0} PTS</p>
                   </div>
                 </div>

@@ -1,22 +1,8 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseConfigJson from '../firebase-applet-config.json';
+// Firebase is currently disabled in favor of local storage mode.
+// This file remains as a placeholder for potential future configuration.
 
-// 환경 변수에서 API 키를 가져오고, 나머지는 JSON 파일에서 가져옵니다.
-const firebaseConfig = {
-  ...firebaseConfigJson,
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || firebaseConfigJson.apiKey
-};
-
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-// 프로젝트 구성에 명시된 특정 데이터베이스 ID를 사용하여 연결
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const googleProvider = new GoogleAuthProvider();
-
-export const signInWithGoogle = () => signInWithPopup(auth, googleProvider);
-export const logout = () => signOut(auth);
+export const isConfigMissing = true;
+export const missingConfigKeys = ['VITE_FIREBASE_API_KEY'];
 
 export enum OperationType {
   CREATE = 'create',
@@ -27,44 +13,13 @@ export enum OperationType {
   WRITE = 'write',
 }
 
-export interface FirestoreErrorInfo {
-  error: string;
-  operationType: OperationType;
-  path: string | null;
-  authInfo: {
-    userId: string | undefined;
-    email: string | null | undefined;
-    emailVerified: boolean | undefined;
-    isAnonymous: boolean | undefined;
-    tenantId: string | null | undefined;
-    providerInfo: {
-      providerId: string;
-      displayName: string | null;
-      email: string | null;
-      photoUrl: string | null;
-    }[];
-  }
+export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  console.error(`Local Mode Error [${operationType}] at ${path}:`, error);
 }
 
-export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
-  const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
-    authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-      isAnonymous: auth.currentUser?.isAnonymous,
-      tenantId: auth.currentUser?.tenantId,
-      providerInfo: auth.currentUser?.providerData.map(provider => ({
-        providerId: provider.providerId,
-        displayName: provider.displayName,
-        email: provider.email,
-        photoUrl: provider.photoURL
-      })) || []
-    },
-    operationType,
-    path
-  }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
-}
+// Mock auth object to prevent crashes in components that still import it
+export const auth = {
+  currentUser: null
+};
+
+export const db = {};

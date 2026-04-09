@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, limit, doc, setDoc, deleteDoc, getDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { storage } from '../services/storage';
 import { useAuth } from './AuthGuard';
 import { UserProfile, TradeLog, PortfolioHolding } from '../types';
 import { MOCK_RANKERS } from '../mockData';
@@ -21,9 +20,9 @@ const MOCK_DETAIL_HOLDINGS: PortfolioHolding[] = [
 ];
 
 const MOCK_DETAIL_TRADES: TradeLog[] = [
-  { id: '1', uid: 'mock', symbol: 'TSLA', type: 'BUY', price: 245000, amount: 10, timestamp: { toDate: () => new Date('2026-03-25') } },
-  { id: '2', uid: 'mock', symbol: 'AAPL', type: 'SELL', price: 210000, amount: 5, timestamp: { toDate: () => new Date('2026-03-20') } },
-  { id: '3', uid: 'mock', symbol: 'NVDA', type: 'BUY', price: 1200000, amount: 2, timestamp: { toDate: () => new Date('2026-03-15') } },
+  { id: '1', uid: 'mock', symbol: 'TSLA', type: 'BUY', price: 245000, amount: 10, timestamp: new Date('2026-03-25').toISOString() },
+  { id: '2', uid: 'mock', symbol: 'AAPL', type: 'SELL', price: 210000, amount: 5, timestamp: new Date('2026-03-20').toISOString() },
+  { id: '3', uid: 'mock', symbol: 'NVDA', type: 'BUY', price: 1200000, amount: 2, timestamp: new Date('2026-03-15').toISOString() },
 ];
 
 export default function RankingList() {
@@ -33,12 +32,8 @@ export default function RankingList() {
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'users'), orderBy('tuhonScore', 'desc'), limit(20));
-    const unsub = onSnapshot(q, (snapshot) => {
-      const realUsers = snapshot.docs.map(doc => ({
-        uid: doc.id,
-        ...doc.data()
-      })) as UserProfile[];
+    const loadRankings = () => {
+      const realUsers = storage.getUsers();
       
       // 실시간 데이터와 Mock 데이터를 병합하여 항상 20명을 유지
       const combined = [...realUsers];
@@ -56,11 +51,11 @@ export default function RankingList() {
         .slice(0, 20);
 
       setRankers(sorted);
-    }, (error) => {
-      console.error("RankingList Snapshot Error:", error);
-      setRankers(MOCK_RANKERS.slice(0, 20));
-    });
-    return () => unsub();
+    };
+
+    loadRankings();
+    const interval = setInterval(loadRankings, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const filteredRankers = rankers.filter(r => {
@@ -174,7 +169,7 @@ export default function RankingList() {
                   "text-xs md:text-sm font-black",
                   (ranker.monthlyReturn || 0) > 0 ? "text-emerald-500" : "text-rose-500"
                 )}>
-                  {ranker.monthlyReturn > 0 ? '+' : ''}{ranker.monthlyReturn || 0}%
+                  {ranker.monthlyReturn !== undefined ? (ranker.monthlyReturn > 0 ? `+${ranker.monthlyReturn}` : ranker.monthlyReturn) : 0}%
                 </span>
                 <div className="md:hidden">
                   <p className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">{ranker.tuhonScore || 0} PTS</p>

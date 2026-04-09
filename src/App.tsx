@@ -3,11 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import { Home as HomeIcon, LayoutGrid, Trophy, PieChart, History, LogOut, Menu, X, User as UserIcon, TrendingUp, ShieldAlert, MessageSquare, Users, RefreshCcw } from 'lucide-react';
 import { AuthProvider, useAuth } from './components/AuthGuard';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { logout } from './firebase';
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
-// Components (to be implemented)
+// Components
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
 import JoinLeague from './components/JoinLeague';
@@ -88,29 +87,22 @@ const Sidebar = () => {
           <div className="mt-auto pt-6 border-t border-slate-900 space-y-6">
             <div className="flex items-center gap-4 px-2">
               <img 
-                src={user?.photoURL || ''} 
-                alt={user?.displayName || ''} 
+                src={user?.photoURL || 'https://picsum.photos/seed/user/100/100'} 
+                alt={user?.displayName || 'User'} 
                 className="w-10 h-10 rounded-full border-2 border-slate-800"
                 referrerPolicy="no-referrer"
               />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-white truncate">{user?.displayName}</p>
-                <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                <p className="text-sm font-bold text-white truncate">{user?.displayName || '사용자'}</p>
+                <p className="text-xs text-slate-500 truncate">{user?.email || 'local@user.com'}</p>
               </div>
             </div>
             <button
               onClick={() => window.location.reload()}
-              className="w-full flex items-center justify-center gap-3 bg-slate-900 hover:bg-slate-800 text-slate-500 hover:text-orange-500 font-bold py-3 rounded-2xl transition-all mb-2"
+              className="w-full flex items-center justify-center gap-3 bg-slate-900 hover:bg-slate-800 text-slate-500 hover:text-orange-500 font-bold py-3 rounded-2xl transition-all"
             >
               <RefreshCcw className="w-5 h-5" />
               새로고침
-            </button>
-            <button
-              onClick={logout}
-              className="w-full flex items-center justify-center gap-3 bg-slate-900 hover:bg-red-950/30 text-slate-500 hover:text-red-500 font-bold py-3 rounded-2xl transition-all"
-            >
-              <LogOut className="w-5 h-5" />
-              로그아웃
             </button>
           </div>
         </div>

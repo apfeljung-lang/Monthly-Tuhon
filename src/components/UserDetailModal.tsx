@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot, limit, doc, setDoc, deleteDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { storage } from '../services/storage';
 import { useAuth } from './AuthGuard';
 import { UserProfile, TradeLog, PortfolioHolding } from '../types';
 import { X, Zap, Target, Award, TrendingUp, Briefcase, History, PieChart as PieChartIcon, ArrowLeft, UserPlus, UserCheck } from 'lucide-react';
@@ -20,9 +19,9 @@ const MOCK_DETAIL_HOLDINGS: PortfolioHolding[] = [
 ];
 
 const MOCK_DETAIL_TRADES: TradeLog[] = [
-  { id: '1', uid: 'mock', symbol: 'TSLA', type: 'BUY', price: 245000, amount: 10, timestamp: { toDate: () => new Date('2026-03-25') } },
-  { id: '2', uid: 'mock', symbol: 'AAPL', type: 'SELL', price: 210000, amount: 5, timestamp: { toDate: () => new Date('2026-03-20') } },
-  { id: '3', uid: 'mock', symbol: 'NVDA', type: 'BUY', price: 1200000, amount: 2, timestamp: { toDate: () => new Date('2026-03-15') } },
+  { id: '1', uid: 'mock', symbol: 'TSLA', type: 'BUY', price: 245000, amount: 10, timestamp: new Date('2026-03-25').toISOString() },
+  { id: '2', uid: 'mock', symbol: 'AAPL', type: 'SELL', price: 210000, amount: 5, timestamp: new Date('2026-03-20').toISOString() },
+  { id: '3', uid: 'mock', symbol: 'NVDA', type: 'BUY', price: 1200000, amount: 2, timestamp: new Date('2026-03-15').toISOString() },
 ];
 
 export const UserDetailModal = ({ user: targetUser, onClose }: { user: UserProfile, onClose: () => void }) => {
@@ -35,33 +34,16 @@ export const UserDetailModal = ({ user: targetUser, onClose }: { user: UserProfi
 
   useEffect(() => {
     if (!currentUser || currentUser.uid === targetUser.uid) return;
-
-    const followRef = doc(db, 'users', currentUser.uid, 'following', targetUser.uid);
-    const unsubFollow = onSnapshot(followRef, (docSnap) => {
-      setIsFollowing(docSnap.exists());
-    });
-
-    return () => unsubFollow();
+    // 로컬 스토리지 팔로잉 체크 (생략 또는 storage에 추가)
+    setIsFollowing(false);
   }, [currentUser, targetUser.uid]);
 
   useEffect(() => {
     if (view === 'portfolio') {
-      const qHoldings = query(collection(db, 'users', targetUser.uid, 'portfolio'), orderBy('weight', 'desc'));
-      const unsubHoldings = onSnapshot(qHoldings, (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PortfolioHolding));
-        setHoldings(data.length > 0 ? data : MOCK_DETAIL_HOLDINGS);
-      });
-
-      const qTrades = query(collection(db, 'users', targetUser.uid, 'trades'), orderBy('timestamp', 'desc'), limit(10));
-      const unsubTrades = onSnapshot(qTrades, (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TradeLog));
-        setTrades(data.length > 0 ? data : MOCK_DETAIL_TRADES);
-      });
-
-      return () => {
-        unsubHoldings();
-        unsubTrades();
-      };
+      // 타겟 유저의 데이터를 로컬 스토리지에서 가져오는 로직
+      // 실제 앱에서는 타겟 유저의 데이터를 별도로 저장하거나 목업 사용
+      setHoldings(MOCK_DETAIL_HOLDINGS);
+      setTrades(MOCK_DETAIL_TRADES);
     }
   }, [view, targetUser.uid]);
 
@@ -71,35 +53,7 @@ export const UserDetailModal = ({ user: targetUser, onClose }: { user: UserProfi
 
     setIsFollowLoading(true);
     try {
-      const followingRef = doc(db, 'users', currentUser.uid, 'following', targetUser.uid);
-      const followerRef = doc(db, 'users', targetUser.uid, 'followers', currentUser.uid);
-      const targetProfileRef = doc(db, 'users', targetUser.uid);
-
-      if (isFollowing) {
-        // Unfollow
-        await deleteDoc(followingRef);
-        await deleteDoc(followerRef);
-        await updateDoc(targetProfileRef, {
-          followers: increment(-1)
-        });
-      } else {
-        // Follow
-        await setDoc(followingRef, {
-          uid: targetUser.uid,
-          displayName: targetUser.displayName,
-          photoURL: targetUser.photoURL,
-          timestamp: serverTimestamp()
-        });
-        await setDoc(followerRef, {
-          uid: currentUser.uid,
-          displayName: currentUser.displayName,
-          photoURL: currentUser.photoURL,
-          timestamp: serverTimestamp()
-        });
-        await updateDoc(targetProfileRef, {
-          followers: increment(1)
-        });
-      }
+      setIsFollowing(!isFollowing);
     } catch (error) {
       console.error("Follow error:", error);
     } finally {
@@ -357,7 +311,9 @@ export const UserDetailModal = ({ user: targetUser, onClose }: { user: UserProfi
                           </div>
                           <div>
                             <p className="text-xs font-black text-white">{trade.symbol}</p>
-                            <p className="text-[10px] text-slate-500 font-bold">{trade.timestamp?.toDate().toLocaleDateString()}</p>
+                            <p className="text-[10px] text-slate-500 font-bold">
+                              {trade.timestamp ? new Date(trade.timestamp).toLocaleDateString() : '방금 전'}
+                            </p>
                           </div>
                         </div>
                         <div className="text-right">

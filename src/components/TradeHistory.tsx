@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, onSnapshot, doc, setDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
+import { storage } from '../services/storage';
 import { useAuth } from './AuthGuard';
 import { TradeLog } from '../types';
 import { Plus, History, ArrowUpRight, ArrowDownRight, Search, Filter, Calendar } from 'lucide-react';
@@ -9,27 +8,28 @@ import { motion, AnimatePresence } from 'motion/react';
 const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
 
 const MOCK_TRADES: TradeLog[] = [
-  { id: '1', uid: 'mock', symbol: 'TSLA', type: 'BUY', price: 245000, amount: 10, timestamp: { toDate: () => new Date('2026-03-25') }, note: 'Breakout play' },
-  { id: '2', uid: 'mock', symbol: 'AAPL', type: 'SELL', price: 210000, amount: 5, timestamp: { toDate: () => new Date('2026-03-20') }, note: 'Take profit' },
-  { id: '3', uid: 'mock', symbol: 'NVDA', type: 'BUY', price: 1200000, amount: 2, timestamp: { toDate: () => new Date('2026-03-15') }, note: 'AI trend' },
-  { id: '4', uid: 'mock', symbol: 'BTC', type: 'BUY', price: 95000000, amount: 0.1, timestamp: { toDate: () => new Date('2026-03-10') }, note: 'Halving expectation' },
-  { id: '5', uid: 'mock', symbol: 'ETH', type: 'SELL', price: 4500000, amount: 1, timestamp: { toDate: () => new Date('2026-03-05') }, note: 'Rebalancing' },
+  { id: '1', uid: 'mock', symbol: 'TSLA', type: 'BUY', price: 245000, amount: 10, timestamp: new Date('2026-03-25').toISOString(), note: 'Breakout play' },
+  { id: '2', uid: 'mock', symbol: 'AAPL', type: 'SELL', price: 210000, amount: 5, timestamp: new Date('2026-03-20').toISOString(), note: 'Take profit' },
+  { id: '3', uid: 'mock', symbol: 'NVDA', type: 'BUY', price: 1200000, amount: 2, timestamp: new Date('2026-03-15').toISOString(), note: 'AI trend' },
+  { id: '4', uid: 'mock', symbol: 'BTC', type: 'BUY', price: 95000000, amount: 0.1, timestamp: new Date('2026-03-10').toISOString(), note: 'Halving expectation' },
+  { id: '5', uid: 'mock', symbol: 'ETH', type: 'SELL', price: 4500000, amount: 1, timestamp: new Date('2026-03-05').toISOString(), note: 'Rebalancing' },
 ];
 
 export default function TradeHistory() {
   const { user } = useAuth();
   const [trades, setTrades] = useState<TradeLog[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const [newTrade, setNewTrade] = useState({ symbol: '', type: 'BUY', price: 0, amount: 0, note: '' });
+  const [newTrade, setNewTrade] = useState({ symbol: '', type: 'BUY' as 'BUY' | 'SELL', price: 0, amount: 0, note: '' });
 
   useEffect(() => {
     if (!user) return;
-    const q = query(collection(db, 'users', user.uid, 'trades'), orderBy('timestamp', 'desc'));
-    const unsub = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TradeLog));
+    const loadTrades = () => {
+      const data = storage.getTrades();
       setTrades(data.length > 0 ? data : MOCK_TRADES);
-    });
-    return () => unsub();
+    };
+    loadTrades();
+    const interval = setInterval(loadTrades, 5000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const displayTrades = trades.length > 0 ? trades : MOCK_TRADES;
@@ -37,11 +37,9 @@ export default function TradeHistory() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    const id = Math.random().toString(36).substr(2, 9);
-    await setDoc(doc(db, 'users', user.uid, 'trades', id), {
+    storage.addTrade({
       ...newTrade,
       uid: user.uid,
-      timestamp: serverTimestamp()
     });
     setIsAdding(false);
     setNewTrade({ symbol: '', type: 'BUY', price: 0, amount: 0, note: '' });
@@ -79,7 +77,7 @@ export default function TradeHistory() {
             <div key={trade.id} className="grid grid-cols-12 px-4 md:px-8 py-6 items-center hover:bg-slate-800/30 transition-colors group">
               <div className="col-span-3 md:col-span-2">
                 <p className="text-[10px] md:text-xs font-bold text-slate-500">
-                  {trade.timestamp?.toDate ? trade.timestamp.toDate().toLocaleDateString() : '방금 전'}
+                  {trade.timestamp ? new Date(trade.timestamp).toLocaleDateString() : '방금 전'}
                 </p>
               </div>
               <div className="col-span-5 md:col-span-3 flex items-center gap-3 md:gap-4">

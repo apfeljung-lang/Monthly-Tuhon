@@ -3,8 +3,7 @@ import { motion } from 'motion/react';
 import { ArrowRight, Globe, Trophy, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthGuard';
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase';
+import { storage } from '../services/storage';
 import { UserProfile } from '../types';
 import { MOCK_RANKERS } from '../mockData';
 import { LeagueBadge } from './LeagueBadge';
@@ -13,17 +12,9 @@ function RealtimeRanking() {
   const [topUsers, setTopUsers] = useState<UserProfile[]>(MOCK_RANKERS.slice(0, 5));
 
   useEffect(() => {
-    const q = query(
-      collection(db, 'users'),
-      orderBy('tuhonScore', 'desc'),
-      limit(5)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const realUsers = snapshot.docs.map(doc => ({
-        uid: doc.id,
-        ...doc.data()
-      })) as UserProfile[];
+    // 로컬 스토리지에서 데이터 로드
+    const loadRankings = () => {
+      const realUsers = storage.getUsers();
       
       // 실시간 데이터와 Mock 데이터를 병합하여 항상 5명을 유지
       const combined = [...realUsers];
@@ -41,13 +32,13 @@ function RealtimeRanking() {
         .slice(0, 5);
         
       setTopUsers(sorted);
-    }, (error) => {
-      console.error("Home Ranking Snapshot Error:", error);
-      // 에러 발생 시 Mock 데이터로 유지
-      setTopUsers(MOCK_RANKERS.slice(0, 5));
-    });
+    };
 
-    return () => unsubscribe();
+    loadRankings();
+    // 로컬 스토리지 변경 감지 (같은 창에서의 변경은 storage 이벤트가 발생하지 않으므로 주기적으로 체크하거나 이벤트를 발생시켜야 함)
+    // 여기서는 단순함을 위해 5초마다 체크
+    const interval = setInterval(loadRankings, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -99,7 +90,7 @@ function RealtimeRanking() {
                   <div className="flex items-center gap-1 justify-end">
                     <TrendingUp className="w-3 h-3 md:w-4 md:h-4 text-green-500" />
                     <p className="text-xs md:text-sm font-black text-green-500">
-                      +{user.monthlyReturn || 0}%
+                      {user.monthlyReturn !== undefined ? (user.monthlyReturn > 0 ? `+${user.monthlyReturn}` : user.monthlyReturn) : 0}%
                     </p>
                   </div>
                   <p className="text-[8px] md:text-[10px] font-bold text-slate-600 uppercase tracking-widest">

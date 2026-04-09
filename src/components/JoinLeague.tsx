@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { collection, query, onSnapshot, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { storage } from '../services/storage';
 import { Link } from 'react-router-dom';
-import { db, handleFirestoreError, OperationType } from '../firebase';
 import { useAuth } from './AuthGuard';
 import { BankAccount, League } from '../types';
 import { Trophy, CheckCircle2, CreditCard, Wallet, Loader2, ChevronRight, Star, ShieldCheck, ArrowRight, ShieldAlert, X, Zap, Target } from 'lucide-react';
@@ -23,6 +22,7 @@ const MOCK_ACCOUNTS: BankAccount[] = [
 
 export default function JoinLeague() {
   const { user, profile } = useAuth();
+  const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [nickname, setNickname] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,6 +31,11 @@ export default function JoinLeague() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchedAccounts = storage.getAccounts();
+    setAccounts(fetchedAccounts);
+  }, []);
 
   useEffect(() => {
     if (profile?.displayName || user?.displayName) {
@@ -54,8 +59,8 @@ export default function JoinLeague() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const selectedAccount = MOCK_ACCOUNTS.find(a => a.id === selectedAccountId);
-  const participatingAccount = MOCK_ACCOUNTS.find(a => a.id === profile?.leagueAccountId);
+  const selectedAccount = accounts.find(a => a.id === selectedAccountId);
+  const participatingAccount = accounts.find(a => a.id === profile?.leagueAccountId);
 
   const handleJoin = async () => {
     if (!user || !selectedAccountId) return;
@@ -66,29 +71,24 @@ export default function JoinLeague() {
       if (!selectedAccount) throw new Error('계좌를 찾을 수 없습니다.');
       if (!nickname.trim()) throw new Error('필명을 입력해 주세요.');
 
-      // Determine league based on balance
       const leagueObj = [...LEAGUES].reverse().find(l => selectedAccount.balance >= l.minAssets);
       if (!leagueObj) {
         throw new Error(`리그 참여를 위한 최소 자산(₩${LEAGUES[0].minAssets.toLocaleString()})이 부족합니다.`);
       }
       const league = leagueObj.id;
 
-      const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, {
-        uid: user.uid,
+      storage.updateProfile({
         displayName: nickname.trim(),
         league,
         leagueAccountId: selectedAccountId,
-        totalAssets: selectedAccount.balance, // Update total assets to match the league account
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+        totalAssets: selectedAccount.balance,
+      });
 
       setIsSuccess(true);
     } catch (err: any) {
       console.error('League join error:', err);
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg);
-      handleFirestoreError(err, OperationType.WRITE, `users/${user.uid}`);
     } finally {
       setLoading(false);
     }
@@ -99,21 +99,15 @@ export default function JoinLeague() {
     setLoading(true);
     setError(null);
     try {
-      const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, {
-        uid: user.uid,
-        displayName: user.displayName || profile?.displayName || '익명',
+      storage.updateProfile({
         league: null,
         leagueAccountId: null,
-        totalAssets: profile?.totalAssets || 10000000,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+      });
       setSelectedAccountId(null);
     } catch (err: any) {
       console.error('League leave error:', err);
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg);
-      handleFirestoreError(err, OperationType.WRITE, `users/${user.uid}`);
     } finally {
       setLoading(false);
     }
@@ -345,7 +339,7 @@ export default function JoinLeague() {
                       className="absolute z-[100] left-0 right-0 mt-4 bg-slate-900 border-2 border-slate-800 rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] backdrop-blur-2xl"
                     >
                       <div className="max-h-80 overflow-y-auto custom-scrollbar p-3">
-                        {MOCK_ACCOUNTS.map((account) => (
+                        {accounts.map((account) => (
                           <button
                             key={account.id}
                             type="button"

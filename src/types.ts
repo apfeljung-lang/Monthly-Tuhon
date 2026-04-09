@@ -36,7 +36,7 @@ export interface TradeLog {
   type: 'BUY' | 'SELL';
   price: number;
   amount: number;
-  timestamp: any;
+  timestamp: string;
   note?: string;
 }
 
@@ -48,7 +48,7 @@ export interface Post {
   content: string;
   likes?: number;
   commentCount?: number;
-  createdAt: any;
+  createdAt: string;
 }
 
 export interface Comment {
@@ -57,7 +57,7 @@ export interface Comment {
   authorName: string;
   authorPhoto?: string;
   content: string;
-  createdAt: any;
+  createdAt: string;
 }
 
 export interface BankAccount {

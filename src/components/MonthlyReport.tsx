@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { collection, query, orderBy, limit, onSnapshot, doc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { storage } from '../services/storage';
 import { useAuth } from './AuthGuard';
 import { UserProfile, TradeLog, PortfolioHolding, BankAccount } from '../types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
@@ -11,11 +10,11 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 const MOCK_TRADES: TradeLog[] = [
-  { id: '1', uid: 'mock', symbol: 'TSLA', type: 'BUY', price: 245000, amount: 10, timestamp: { toDate: () => new Date('2026-03-25') } },
-  { id: '2', uid: 'mock', symbol: 'AAPL', type: 'SELL', price: 210000, amount: 5, timestamp: { toDate: () => new Date('2026-03-20') } },
-  { id: '3', uid: 'mock', symbol: 'NVDA', type: 'BUY', price: 1200000, amount: 2, timestamp: { toDate: () => new Date('2026-03-15') } },
-  { id: '4', uid: 'mock', symbol: 'BTC', type: 'BUY', price: 95000000, amount: 0.1, timestamp: { toDate: () => new Date('2026-03-10') } },
-  { id: '5', uid: 'mock', symbol: 'ETH', type: 'SELL', price: 4500000, amount: 1, timestamp: { toDate: () => new Date('2026-03-05') } },
+  { id: '1', uid: 'mock', symbol: 'TSLA', type: 'BUY', price: 245000, amount: 10, timestamp: new Date('2026-03-25').toISOString() },
+  { id: '2', uid: 'mock', symbol: 'AAPL', type: 'SELL', price: 210000, amount: 5, timestamp: new Date('2026-03-20').toISOString() },
+  { id: '3', uid: 'mock', symbol: 'NVDA', type: 'BUY', price: 1200000, amount: 2, timestamp: new Date('2026-03-15').toISOString() },
+  { id: '4', uid: 'mock', symbol: 'BTC', type: 'BUY', price: 95000000, amount: 0.1, timestamp: new Date('2026-03-10').toISOString() },
+  { id: '5', uid: 'mock', symbol: 'ETH', type: 'SELL', price: 4500000, amount: 1, timestamp: new Date('2026-03-05').toISOString() },
 ];
 
 const MOCK_HOLDINGS: PortfolioHolding[] = [
@@ -212,7 +211,6 @@ export default function MonthlyReport() {
     
     try {
       const template = pdfTemplateRef.current;
-      // Ensure it's rendered for capture
       template.style.visibility = 'visible';
       
       const canvas = await html2canvas(template, {
@@ -241,7 +239,7 @@ export default function MonthlyReport() {
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'px',
-        format: 'a4' // Use standard A4 or dynamic based on content
+        format: 'a4'
       });
 
       const imgProps = pdf.getImageProperties(imgData);
@@ -286,30 +284,20 @@ export default function MonthlyReport() {
   useEffect(() => {
     if (!user) return;
 
-    // Fetch accounts
-    const accountsRef = collection(db, 'users', user.uid, 'accounts');
-    const unsubAccounts = onSnapshot(accountsRef, (snapshot) => {
-      const fetchedAccounts = snapshot.docs.map(doc => doc.data() as BankAccount);
+    const loadData = () => {
+      const fetchedAccounts = storage.getAccounts();
       setAccounts(fetchedAccounts);
-    });
 
-    // Fetch recent trades
-    const qTrades = query(collection(db, 'users', user.uid, 'trades'), orderBy('timestamp', 'desc'), limit(5));
-    const unsubTrades = onSnapshot(qTrades, (snapshot) => {
-      setRecentTrades(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TradeLog)));
-    });
+      const trades = storage.getTrades();
+      setRecentTrades(trades.slice(0, 5));
 
-    // Fetch portfolio holdings
-    const qHoldings = query(collection(db, 'users', user.uid, 'portfolio'), orderBy('weight', 'desc'));
-    const unsubHoldings = onSnapshot(qHoldings, (snapshot) => {
-      setHoldings(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PortfolioHolding)));
-    });
-
-    return () => {
-      unsubTrades();
-      unsubHoldings();
-      unsubAccounts();
+      const portfolio = storage.getPortfolio();
+      setHoldings(portfolio);
     };
+
+    loadData();
+    const interval = setInterval(loadData, 5000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const selectedAccount = MOCK_ACCOUNTS_DATA.find(a => a.id === selectedAccountId) || MOCK_ACCOUNTS_DATA[0];
@@ -484,7 +472,7 @@ export default function MonthlyReport() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-white truncate uppercase tracking-tight">{trade.symbol}</p>
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                    {trade.timestamp?.toDate ? trade.timestamp.toDate().toLocaleDateString() : '방금 전'}
+                    {typeof trade.timestamp === 'string' ? new Date(trade.timestamp).toLocaleDateString() : '방금 전'}
                   </p>
                 </div>
                 <div className="text-right">
@@ -799,7 +787,9 @@ export default function MonthlyReport() {
                   </div>
                   <div className="text-right" style={{ lineHeight: '1.2' }}>
                     <p style={{ fontSize: '14px', fontWeight: '900', color: '#ffffff', margin: 0 }}>₩{(trade.price * trade.amount).toLocaleString()}</p>
-                    <p style={{ fontSize: '10px', color: '#475569', fontWeight: 'bold', margin: 0 }}>{trade.timestamp?.toDate ? trade.timestamp.toDate().toLocaleDateString() : '2026-03-25'}</p>
+                    <p style={{ fontSize: '10px', color: '#475569', fontWeight: 'bold', margin: 0 }}>
+                      {trade.timestamp ? new Date(trade.timestamp).toLocaleDateString() : '2026-03-25'}
+                    </p>
                   </div>
                 </div>
               ))}
