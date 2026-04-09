@@ -331,7 +331,7 @@ export default function MonthlyReport() {
         <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div className="space-y-2">
           <h2 className="text-4xl font-black text-white tracking-tighter uppercase italic">
-            월간 <span className="text-orange-500">보고서</span>
+            Monthly <span className="text-orange-500">Report</span>
           </h2>
           <p className="text-slate-500 font-medium">이번 달 당신의 투혼을 숫자로 요약한 월간 보고서입니다.</p>
         </div>
