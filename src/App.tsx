@@ -3,9 +3,33 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import { Home as HomeIcon, LayoutGrid, Trophy, PieChart, History, LogOut, Menu, X, User as UserIcon, TrendingUp, ShieldAlert, MessageSquare, Users, RefreshCcw } from 'lucide-react';
 import { AuthProvider, useAuth } from './components/AuthGuard';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { logout } from './firebase';
+import { logout, isConfigMissing } from './firebase';
 import { cn } from './lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
+
+const ConfigWarning = () => (
+  <div className="fixed inset-0 z-[9999] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-6 text-center">
+    <div className="max-w-md w-full bg-slate-900 border-2 border-red-500 rounded-3xl p-8 shadow-2xl shadow-red-500/20">
+      <ShieldAlert className="w-16 h-16 text-red-500 mx-auto mb-6" />
+      <h2 className="text-2xl font-black text-white mb-4">Firebase 설정이 필요합니다</h2>
+      <p className="text-slate-400 mb-8 leading-relaxed text-sm">
+        보안을 위해 실제 API 키를 코드에서 분리했습니다.<br/>
+        앱을 작동시키려면 아래 메뉴에서 설정을 완료해 주세요.
+      </p>
+      <div className="bg-slate-800 rounded-2xl p-6 text-left space-y-4 mb-8">
+        <p className="text-sm font-bold text-orange-500">방법:</p>
+        <ol className="text-sm text-slate-300 list-decimal list-inside space-y-2">
+          <li>왼쪽 하단 <b>⚙️ Settings</b> 클릭</li>
+          <li><b>API Keys</b> (또는 Secrets) 탭 선택</li>
+          <li>제가 이전에 드린 7개의 값을 하나씩 등록</li>
+        </ol>
+      </div>
+      <p className="text-xs text-slate-500 italic">
+        * 등록 후 앱을 새로고침하거나 다시 배포해 주세요.
+      </p>
+    </div>
+  </div>
+);
 
 // Components (to be implemented)
 import Home from './components/Home';
@@ -122,6 +146,7 @@ const Sidebar = () => {
 const AppContent = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-orange-500/30">
+      {isConfigMissing && <ConfigWarning />}
       <Sidebar />
       <main className="lg:ml-72 p-4 lg:p-8">
         <div className="max-w-7xl mx-auto">

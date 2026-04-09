@@ -14,6 +14,13 @@ const firebaseConfig = {
   firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || firebaseConfigJson.firestoreDatabaseId
 };
 
+// 설정값 검증: 플레이스홀더가 그대로 있는지 확인
+export const isConfigMissing = firebaseConfig.apiKey === 'YOUR_API_KEY' || !firebaseConfig.apiKey;
+
+if (isConfigMissing) {
+  console.error('❌ Firebase 설정이 누락되었습니다. Settings > API Keys 메뉴에서 모든 항목을 등록해 주세요.');
+}
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 // 프로젝트 구성에 명시된 특정 데이터베이스 ID를 사용하여 연결
