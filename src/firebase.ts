@@ -14,11 +14,24 @@ const firebaseConfig = {
   firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || firebaseConfigJson.firestoreDatabaseId
 };
 
-// 설정값 검증: 플레이스홀더가 그대로 있는지 확인
-export const isConfigMissing = firebaseConfig.apiKey === 'YOUR_API_KEY' || !firebaseConfig.apiKey;
+// 설정값 검증: 플레이스홀더가 그대로 있거나 비어있는지 확인
+const checkConfig = () => {
+  const missing = [];
+  if (firebaseConfig.apiKey === 'YOUR_API_KEY' || !firebaseConfig.apiKey) missing.push('VITE_FIREBASE_API_KEY');
+  if (firebaseConfig.authDomain === 'YOUR_AUTH_DOMAIN' || !firebaseConfig.authDomain) missing.push('VITE_FIREBASE_AUTH_DOMAIN');
+  if (firebaseConfig.projectId === 'YOUR_PROJECT_ID' || !firebaseConfig.projectId) missing.push('VITE_FIREBASE_PROJECT_ID');
+  if (firebaseConfig.storageBucket === 'YOUR_STORAGE_BUCKET' || !firebaseConfig.storageBucket) missing.push('VITE_FIREBASE_STORAGE_BUCKET');
+  if (firebaseConfig.messagingSenderId === 'YOUR_MESSAGING_SENDER_ID' || !firebaseConfig.messagingSenderId) missing.push('VITE_FIREBASE_MESSAGING_SENDER_ID');
+  if (firebaseConfig.appId === 'YOUR_APP_ID' || !firebaseConfig.appId) missing.push('VITE_FIREBASE_APP_ID');
+  if (firebaseConfig.firestoreDatabaseId === 'YOUR_DATABASE_ID' || !firebaseConfig.firestoreDatabaseId) missing.push('VITE_FIREBASE_DATABASE_ID');
+  return missing;
+};
+
+export const missingConfigKeys = checkConfig();
+export const isConfigMissing = missingConfigKeys.length > 0;
 
 if (isConfigMissing) {
-  console.error('❌ Firebase 설정이 누락되었습니다. Settings > API Keys 메뉴에서 모든 항목을 등록해 주세요.');
+  console.error('❌ Firebase 설정이 누락되었습니다. 다음 항목을 등록해 주세요:', missingConfigKeys.join(', '));
 }
 
 const app = initializeApp(firebaseConfig);
